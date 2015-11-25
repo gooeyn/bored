@@ -1,8 +1,6 @@
 package gooeyn.bored;
 
 import android.content.Context;
-import android.print.PrintDocumentAdapter;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +12,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-/**
- * Created by guilh on 11/15/2015.
- */
 public class ChatAdapter extends BaseAdapter {
     private static LayoutInflater inflater=null;
     private ArrayList<Chat> events_list = new ArrayList<>();

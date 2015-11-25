@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -47,7 +48,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.KeyStore;
@@ -255,8 +255,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setImage(Drawable drawable)
     {
-        //mImageView.setBackgroundDrawable(drawable);
-        androidView.setBackgroundDrawable(drawable);
+        if(Build.VERSION.SDK_INT >= 16) {
+            androidView.setBackground(drawable);
+        } else {
+            androidView.setBackgroundDrawable(drawable);
+        }
     }
 
     public class DownloadImage extends AsyncTask<String, Integer, Drawable> {
@@ -292,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 in.close();
                 buf.close();
 
-                return new BitmapDrawable(bMap);
+                return new BitmapDrawable(getApplicationContext().getResources(), bMap);
 
             } catch (Exception e) {
                 Log.e("Error reading file", e.toString());

@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.WindowManager;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -100,8 +100,7 @@ public class LoginActivity extends AppCompatActivity {
     private void setLoginButtonStyle() {
          //declare login button
         float fbIconScale = 1.45F;
-        Drawable drawable = loginButton.getResources().getDrawable(
-                com.facebook.R.drawable.com_facebook_button_icon);
+        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), com.facebook.R.drawable.com_facebook_button_icon);
         drawable.setBounds(0, 0, (int) (drawable.getIntrinsicWidth() * fbIconScale),
                 (int) (drawable.getIntrinsicHeight() * fbIconScale));
         loginButton.setCompoundDrawables(drawable, null, null, null);

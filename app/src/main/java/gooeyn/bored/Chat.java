@@ -1,8 +1,5 @@
 package gooeyn.bored;
 
-/**
- * Created by guilh on 11/21/2015.
- */
 public class Chat {
 
     String name;
