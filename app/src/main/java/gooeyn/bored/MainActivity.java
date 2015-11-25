@@ -1,5 +1,6 @@
 package gooeyn.bored;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +36,13 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 
+import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,11 +50,19 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.util.Collection;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManagerFactory;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private ImageView androidView;
-    private View headerView;
+    AbstractXMPPConnection conn2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        headerView = LayoutInflater.from(this).inflate(R.layout.nav_header_abc, null);
+        View headerView = LayoutInflater.from(this).inflate(R.layout.nav_header_abc, null);
         navigationView.addHeaderView(headerView);
         androidView = (ImageView) headerView.findViewById(R.id.androidView);
         androidView = (ImageView) headerView.findViewById(R.id.androidView);
@@ -131,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         parameters.putString("fields", "picture.type(large),name,cover");
         request.setParameters(parameters);
         request.executeAsync();
+
+        connectToServer();
     }
 
 
@@ -199,7 +217,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             switch (position) {
                 case 0:
-                    return new PeopleFragment();
+                    Bundle args = new Bundle();
+                    args.putString("a", "a");
+                    PeopleFragment people = new PeopleFragment();
+                    people.setArguments(args);
+                    return people;
                 case 1:
                     return new ChatFragment();
                 default:
@@ -255,17 +277,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setImage(image);
         }
 
-
-        /**
-         * Actually download the Image from the _url
-         * @param _url
-         * @return
-         */
         private Drawable downloadImage(String _url)
         {
             //Prepare to download image
             URL url;
-            BufferedOutputStream out;
             InputStream in;
             BufferedInputStream buf;
 
@@ -273,35 +288,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             try {
                 url = new URL(_url);
                 in = url.openStream();
-
-            /*
-             * THIS IS NOT NEEDED
-             *
-             * YOU TRY TO CREATE AN ACTUAL IMAGE HERE, BY WRITING
-             * TO A NEW FILE
-             * YOU ONLY NEED TO READ THE INPUTSTREAM
-             * AND CONVERT THAT TO A BITMAP
-            out = new BufferedOutputStream(new FileOutputStream("testImage.jpg"));
-            int i;
-
-             while ((i = in.read()) != -1) {
-                 out.write(i);
-             }
-             out.close();
-             in.close();
-             */
-
-                // Read the inputstream
                 buf = new BufferedInputStream(in);
-
-                // Convert the BufferedInputStream to a Bitmap
                 Bitmap bMap = BitmapFactory.decodeStream(buf);
-                if (in != null) {
-                    in.close();
-                }
-                if (buf != null) {
-                    buf.close();
-                }
+                in.close();
+                buf.close();
 
                 return new BitmapDrawable(bMap);
 
@@ -312,5 +302,111 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return null;
         }
 
+    }
+
+
+
+
+
+
+
+
+    public void connectToServer() {
+
+        final ProgressDialog dialog = ProgressDialog.show(this, "Connecting...", "Please wait...", false);
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                InputStream ins = getApplicationContext().getResources().openRawResource(R.raw.keystore2);
+                KeyStore ks = null;
+                try {
+                    ks = KeyStore.getInstance("BKS");
+                    ks.load(ins, "123".toCharArray());
+                    Log.e("XMPPChatDemoActivity", "try ks" + ks.toString());
+                } catch (Exception e) {
+                    Log.e("XMPPChatDemoActivity", e.toString());
+                }
+
+                TrustManagerFactory tmf = null;
+                try {
+                    tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    tmf.init(ks);
+                    Log.e("XMPPChatDemoActivity", "try tmf" + tmf.toString());
+                } catch (Exception e) {
+                    Log.e("XMPPChatDemoActivity", e.toString());
+                }
+
+                SSLContext sslctx = null;
+                try {
+                    sslctx = SSLContext.getInstance("TLS");
+                    sslctx.init(null, tmf.getTrustManagers(), new SecureRandom());
+                    Log.e("XMPPChatDemoActivity", "try ssl" + sslctx.toString());
+                } catch (Exception e) {
+                    Log.e("XMPPChatDemoActivity", e.toString());
+                }
+                // Create a connection to the jabber.org server on a specific port.
+                XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                        .setUsernameAndPassword("a", "a")
+                        .setServiceName("54.84.237.97")
+                        .setHost("54.84.237.97")
+                        .setResource("Android")
+                        .setPort(5225)
+                        .setCustomSSLContext(sslctx)
+                        .setHostnameVerifier(new HostnameVerifier() {
+                            @Override
+                            public boolean verify(String hostname, SSLSession session) {
+                                return true;
+                            }
+                        })
+                        .build();
+                conn2 = new XMPPTCPConnection(config);
+                SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
+                SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
+                try{
+                    conn2.connect();
+                    Log.e("conectacaralho", "conectado: " + conn2.isConnected());
+                } catch(Exception e)
+                {
+                    Log.e("conectacaralho", e.toString());
+                }
+
+                try{
+                    conn2.login();
+                    Log.e("conectacaralho", "conectado to: " + conn2.getUser());
+                } catch(Exception e)
+                {
+                    Log.e("conectacaralho", e.toString());
+                }
+                Message message = new Message("b@ec2-54-84-237-97.compute-1.amazonaws.com", Message.Type.chat);
+                message.setFrom(conn2.getUser());
+                message.setBody("sou o celular do gui");
+                try {
+                    conn2.sendStanza(message);
+                } catch(Exception e)
+                {
+                    Log.e("conectacaralho", e.toString());
+                }
+
+                Roster roster = Roster.getInstanceFor(conn2);
+
+
+                try {
+                    if (!roster.isLoaded())
+                        roster.reloadAndWait();
+                } catch(Exception e)
+                {
+                    Log.e("conectacaralho", "reload");
+                }
+
+                Collection<RosterEntry> entries = roster.getEntries();
+                Log.e("conectacaralho", "vazio: " + entries.isEmpty());
+                for (RosterEntry entry : entries) {
+                    Log.e("conectacaralho", entry.getUser());
+                }
+                    dialog.dismiss();
+            }
+        });
+        t.start();
+        dialog.show();
     }
 }

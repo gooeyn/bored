@@ -147,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
     INSERT FUNCTION: INSERT USER'S INFORMATION DO MYSQL DATABASE VIA PHP
      */
     private Boolean insert() throws IOException {
-        URL url = new URL("http://ec2-54-175-170-39.compute-1.amazonaws.com/insert.php"); //server url
+        URL url = new URL("ec2-54-84-237-97.compute-1.amazonaws.com/insert.php"); //server url
         InputStream is = null; //create new input stream
         try {
             // OPEN CONNECTION FOR GIVEN URL AND SET CONNECTION SETTINGS
