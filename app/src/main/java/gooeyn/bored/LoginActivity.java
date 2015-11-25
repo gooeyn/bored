@@ -43,33 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(getApplicationContext()); //initialize facebook sdk
         callbackManager = CallbackManager.Factory.create(); //create call back manager
         setContentView(R.layout.activity_login); //set content view
-
+        loginButton = (LoginButton) findViewById(R.id.login_button);
         setLoginButtonStyle();
-        login();
-    }
-
-    private void setLoginButtonStyle()
-    {
-        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button); //declare login button
-        float fbIconScale = 1.45F;
-        Drawable drawable = loginButton.getResources().getDrawable(
-                com.facebook.R.drawable.com_facebook_button_icon);
-        drawable.setBounds(0, 0, (int) (drawable.getIntrinsicWidth() * fbIconScale),
-                (int) (drawable.getIntrinsicHeight() * fbIconScale));
-        loginButton.setCompoundDrawables(drawable, null, null, null);
-        loginButton.setCompoundDrawablePadding(loginButton.getResources().
-                getDimensionPixelSize(R.dimen.fb_margin_override_textpadding));
-        loginButton.setPadding(
-                loginButton.getResources().getDimensionPixelSize(
-                        R.dimen.fb_margin_override_lr),
-                loginButton.getResources().getDimensionPixelSize(
-                        R.dimen.fb_margin_override_top),
-                0,
-                loginButton.getResources().getDimensionPixelSize(
-                        R.dimen.fb_margin_override_bottom));
-    }
-    private void login()
-    {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() { //register login button call back
             @Override
             public void onSuccess(LoginResult loginResult) { //if successfull login
@@ -87,7 +62,8 @@ public class LoginActivity extends AppCompatActivity {
                                     hashData.put("first_name", object.getString("first_name"));
                                     hashData.put("last_name", object.getString("last_name"));
                                     hashData.put("facebook_id", object.getString("id"));
-                                    if(object.getString("gender").equals("male")) hashData.put("gender", "m");
+                                    if (object.getString("gender").equals("male"))
+                                        hashData.put("gender", "m");
                                     else hashData.put("gender", "f");
 
                                     insertToDatabase(); //insert all the data to the database
@@ -119,7 +95,26 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("loginapp", "onerror");
             }
         });
+    }
 
+    private void setLoginButtonStyle() {
+         //declare login button
+        float fbIconScale = 1.45F;
+        Drawable drawable = loginButton.getResources().getDrawable(
+                com.facebook.R.drawable.com_facebook_button_icon);
+        drawable.setBounds(0, 0, (int) (drawable.getIntrinsicWidth() * fbIconScale),
+                (int) (drawable.getIntrinsicHeight() * fbIconScale));
+        loginButton.setCompoundDrawables(drawable, null, null, null);
+        loginButton.setCompoundDrawablePadding(loginButton.getResources().
+                getDimensionPixelSize(R.dimen.fb_margin_override_textpadding));
+        loginButton.setPadding(
+                loginButton.getResources().getDimensionPixelSize(
+                        R.dimen.fb_margin_override_lr),
+                loginButton.getResources().getDimensionPixelSize(
+                        R.dimen.fb_margin_override_top),
+                0,
+                loginButton.getResources().getDimensionPixelSize(
+                        R.dimen.fb_margin_override_bottom));
     }
     /*
     INSERT TO DATABASE FUNCTION: CREATES ASYNCKTASK TO INSERT USER'S INFORMATION TO MYSQL DATABASE VIA PHP
@@ -132,9 +127,9 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     insert(); //insert function is called
                 }
-                catch (IOException e) //catches IO exception
+                catch (Exception e) //catches IO exception
                 {
-                    Log.d("sqloutside", "inserterror");
+                    Log.d("sqloutside", e.toString());
                 }
                 return null;
             }
@@ -147,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
     INSERT FUNCTION: INSERT USER'S INFORMATION DO MYSQL DATABASE VIA PHP
      */
     private Boolean insert() throws IOException {
-        URL url = new URL("ec2-54-84-237-97.compute-1.amazonaws.com/insert.php"); //server url
+        URL url = new URL("http://ec2-54-84-237-97.compute-1.amazonaws.com/insert.php"); //server url
         InputStream is = null; //create new input stream
         try {
             // OPEN CONNECTION FOR GIVEN URL AND SET CONNECTION SETTINGS

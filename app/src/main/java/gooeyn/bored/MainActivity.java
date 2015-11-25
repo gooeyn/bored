@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             switch (position) {
                 case 0:
                     Bundle args = new Bundle();
-                    args.putString("a", "a");
+                    //args.putParcelable("a", conn2);
                     PeopleFragment people = new PeopleFragment();
                     people.setArguments(args);
                     return people;
@@ -231,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return mNumOfTabs;
         }
     }
@@ -303,13 +302,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
-
-
-
-
-
-
-
 
     public void connectToServer() {
 
