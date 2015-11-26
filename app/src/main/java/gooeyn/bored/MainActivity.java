@@ -1,6 +1,5 @@
 package gooeyn.bored;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,32 +36,16 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 
-import org.jivesoftware.smack.AbstractXMPPConnection;
-import org.jivesoftware.smack.SASLAuthentication;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.roster.RosterEntry;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.util.Collection;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManagerFactory;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private ImageView androidView;
-    AbstractXMPPConnection conn2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,8 +130,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         parameters.putString("fields", "picture.type(large),name,cover");
         request.setParameters(parameters);
         request.executeAsync();
-
-        connectToServer();
     }
 
 
@@ -304,104 +285,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return null;
         }
 
-    }
-
-    public void connectToServer() {
-
-        final ProgressDialog dialog = ProgressDialog.show(this, "Connecting...", "Please wait...", false);
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                InputStream ins = getApplicationContext().getResources().openRawResource(R.raw.keystore2);
-                KeyStore ks = null;
-                try {
-                    ks = KeyStore.getInstance("BKS");
-                    ks.load(ins, "123".toCharArray());
-                    Log.e("XMPPChatDemoActivity", "try ks" + ks.toString());
-                } catch (Exception e) {
-                    Log.e("XMPPChatDemoActivity", e.toString());
-                }
-
-                TrustManagerFactory tmf = null;
-                try {
-                    tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                    tmf.init(ks);
-                    Log.e("XMPPChatDemoActivity", "try tmf" + tmf.toString());
-                } catch (Exception e) {
-                    Log.e("XMPPChatDemoActivity", e.toString());
-                }
-
-                SSLContext sslctx = null;
-                try {
-                    sslctx = SSLContext.getInstance("TLS");
-                    sslctx.init(null, tmf.getTrustManagers(), new SecureRandom());
-                    Log.e("XMPPChatDemoActivity", "try ssl" + sslctx.toString());
-                } catch (Exception e) {
-                    Log.e("XMPPChatDemoActivity", e.toString());
-                }
-                // Create a connection to the jabber.org server on a specific port.
-                XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                        .setUsernameAndPassword("a", "a")
-                        .setServiceName("54.84.237.97")
-                        .setHost("54.84.237.97")
-                        .setResource("Android")
-                        .setPort(5225)
-                        .setCustomSSLContext(sslctx)
-                        .setHostnameVerifier(new HostnameVerifier() {
-                            @Override
-                            public boolean verify(String hostname, SSLSession session) {
-                                return true;
-                            }
-                        })
-                        .build();
-                conn2 = new XMPPTCPConnection(config);
-                SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
-                SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
-                try{
-                    conn2.connect();
-                    Log.e("conectacaralho", "conectado: " + conn2.isConnected());
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", e.toString());
-                }
-
-                try{
-                    conn2.login();
-                    Log.e("conectacaralho", "conectado to: " + conn2.getUser());
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", e.toString());
-                }
-                Message message = new Message("b@ec2-54-84-237-97.compute-1.amazonaws.com", Message.Type.chat);
-                message.setFrom(conn2.getUser());
-                message.setBody("sou o celular do gui");
-                try {
-                    conn2.sendStanza(message);
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", e.toString());
-                }
-
-                Roster roster = Roster.getInstanceFor(conn2);
-
-
-                try {
-                    if (!roster.isLoaded())
-                        roster.reloadAndWait();
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", "reload");
-                }
-
-                Collection<RosterEntry> entries = roster.getEntries();
-                Log.e("conectacaralho", "vazio: " + entries.isEmpty());
-                for (RosterEntry entry : entries) {
-                    Log.e("conectacaralho", entry.getUser());
-                }
-                    dialog.dismiss();
-            }
-        });
-        t.start();
-        dialog.show();
     }
 }

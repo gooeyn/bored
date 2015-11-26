@@ -21,6 +21,7 @@ public class ButtonActivity extends AppCompatActivity {
             startActivity(i); //START LOGIN ACTIVITY
             finish(); //FINISHES MAIN ACTIVITY
         }
+        SingletonConnection.getInstance().connect(getApplicationContext());
         final Button btn = (Button) findViewById(R.id.redbutton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
