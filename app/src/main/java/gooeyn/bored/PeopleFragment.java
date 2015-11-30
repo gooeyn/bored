@@ -21,7 +21,9 @@ public class PeopleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_people, container, false);
         ArrayList<People> people = new ArrayList<>(); //EVENT ARRAYLIST
-        AbstractXMPPConnection connection = SingletonConnection.getInstance().getConnection();
+        boolean b = MyConnectionManager.getInstance().isConnected();
+        if(!b) MyConnectionManager.getInstance().connect(getContext());
+        AbstractXMPPConnection connection = MyConnectionManager.getInstance().getConnection();
         Roster roster = Roster.getInstanceFor(connection);
         try {
             if (!roster.isLoaded())

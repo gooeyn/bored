@@ -1,6 +1,7 @@
 package gooeyn.bored;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -58,8 +58,9 @@ public class ChatAdapter extends BaseAdapter {
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(context, ConversationActivity.class);
+                i.putExtra("user", events_list.get(position).name);
+                context.startActivity(new Intent(context, ConversationActivity.class));
             }
         });
         return rowView;

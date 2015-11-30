@@ -62,7 +62,7 @@ public class PeopleAdapter extends BaseAdapter {
                 Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(context, ConversationActivity.class);
                 i.putExtra("user", events_list.get(position).name);
-                context.startActivity(new Intent(context, ConversationActivity.class));
+                context.startActivity(i);
             }
         });
         return rowView;

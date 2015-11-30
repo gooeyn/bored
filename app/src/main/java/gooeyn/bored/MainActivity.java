@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Bundle args = new Bundle();
                     //args.putParcelable("a", conn2);
                     PeopleFragment people = new PeopleFragment();
-                    people.setArguments(args);
+                    //people.setArguments(args);
                     return people;
                 case 1:
                     return new ChatFragment();

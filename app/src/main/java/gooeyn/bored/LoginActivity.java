@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     CallbackManager callbackManager; //call back manager for the login button
     HashMap<String, String> hashData = new HashMap<>(); //hash map containing the data from facebook to be added to mysql database
     LoginButton loginButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,16 +57,19 @@ public class LoginActivity extends AppCompatActivity {
                             public void onCompleted(JSONObject object, GraphResponse response) { //on completed request
                                 try {
                                     // INSERTING DATA FROM FACEBOOK INTO HASHTABLE TO BE INSERTED INTO MYSQL
-                                    hashData.put("email", "a@@@@@@.com");
-                                    hashData.put("password", "myass");
                                     hashData.put("name", object.getString("name"));
                                     hashData.put("first_name", object.getString("first_name"));
                                     hashData.put("last_name", object.getString("last_name"));
                                     hashData.put("facebook_id", object.getString("id"));
-                                    if (object.getString("gender").equals("male"))
-                                        hashData.put("gender", "m");
-                                    else hashData.put("gender", "f");
 
+                                    if (object.getString("gender").equals("male"))
+                                    {
+                                        hashData.put("gender", "m");
+                                    }
+                                    else
+                                    {
+                                        hashData.put("gender", "f");
+                                    }
                                     insertToDatabase(); //insert all the data to the database
                                 } catch (JSONException e) {
                                     Log.d("loginapp", e.toString());

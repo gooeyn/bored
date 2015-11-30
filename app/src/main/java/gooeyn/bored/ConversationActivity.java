@@ -1,5 +1,6 @@
 package gooeyn.bored;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,17 +21,20 @@ public class ConversationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-        final AbstractXMPPConnection connection = SingletonConnection.getInstance().getConnection();
+        final AbstractXMPPConnection connection = MyConnectionManager.getInstance().getConnection();
         Button sendButton = (Button) findViewById(R.id.buttonSend);
         listview = (ListView) this.findViewById(R.id.listMessages);
         final EditText sendText = (EditText) findViewById(R.id.editTextSend);
+        Intent intent = getIntent();
+        final String user = intent.getStringExtra("user");
+        Log.e("chatgooeyn", user);
         listview.setAdapter(new ConversationAdapter(getApplicationContext(), people));
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String text = sendText.getText().toString();
                 sendText.setText("");
-                Message message = new Message("b@ec2-54-84-237-97.compute-1.amazonaws.com", Message.Type.chat);
+                Message message = new Message(user, Message.Type.chat);
                 message.setFrom(connection.getUser());
                 message.setBody(text);
                 try {
