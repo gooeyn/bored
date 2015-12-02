@@ -1,7 +1,7 @@
 package gooeyn.bored;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,30 +16,27 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SASLAuthentication;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
@@ -53,13 +50,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ConcurrentModificationException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -67,118 +62,54 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 public class BoredActivity extends AppCompatActivity {
-
+    String TAG = "myshit";
     ImageView profileImgView;
+    TextView profileTxtView;
     ListView events_list;
-
-
-    FragmentActivity my;
+    boolean isRegistered = false;
     AbstractXMPPConnection connection;
     String serviceName = "54.84.237.97";
     String host = "54.84.237.97";
     int port = 5225;
     String resource = "Android";
     ArrayList<People> people = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_bored);
-        my = this;
+
+        /* CHECK IF USER IS LOGGED IN OR NOT */
         if (!isLoggedIn()) { //IF USER IS NOT LOGGED IN
             Intent i = new Intent(this, LoginActivity.class); //LOGIN ACTIVITY INTENT
             startActivity(i); //START LOGIN ACTIVITY
             finish(); //FINISHES MAIN ACTIVITY
         }
-        MyConnectionManager.getInstance().connect(getApplicationContext());
+
+        /* CONNECT AND GET DATA (BACKGROUD) */
+        //MyConnectionManager.getInstance().connect(getApplicationContext());
+        getFacebookData();
+
+
+        /* DECLARE ALL VARIABLES */
         profileImgView = (ImageView) findViewById(R.id.profileImgView);
-        final TextView profileTxtView = (TextView) findViewById(R.id.profileTxtView);
-
-        AccessToken accessToken = AccessToken.getCurrentAccessToken(); // get current access token
-        GraphRequest request = GraphRequest.newMeRequest( //make graph request for facebook data
-                accessToken,
-                new GraphRequest.GraphJSONObjectCallback() { //callback from graph request
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) { //on completed request
-                        try {
-                            profileTxtView.setText(object.getString("name"));
-                            JSONObject pic = object.getJSONObject("picture");
-                            JSONObject data = pic.getJSONObject("data");
-
-                            //JSONObject cover = object.getJSONObject("cover");
-                            //JSONObject source = cover.getJSONObject("source");
-                            new DownloadImage().execute(data.getString("url"));
-                            //new DownloadImageSource().execute(cover.getString("source"));
-                        } catch (JSONException e) {
-                            Log.d("loginapp", e.toString());
-                            Log.d("loginapp", object.toString());
-                        }
-                    }
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "picture.type(large),name,cover");
-        request.setParameters(parameters);
-        request.executeAsync();
-/*        ArrayList<People> people = new ArrayList<>(); //EVENT ARRAYLIST
-
-        AbstractXMPPConnection connection = null;
-        while(connection == null)
-        {
-            connection = MyConnectionManager.getInstance().getConnection();
-        }
-        Roster roster = Roster.getInstanceFor(connection);
-        try {
-            if (!roster.isLoaded())
-                roster.reloadAndWait();
-        } catch(Exception e)
-        {
-            Log.e("conectacaralho", "reload");
-        }
-
-        Collection<RosterEntry> entries = roster.getEntries();
-        Log.e("conectacaralho", "vazio: " + entries.isEmpty());
-        for (RosterEntry entry : entries) {
-            people.add(new People(entry.getUser()));
-            Log.e("conectacaralho", "" + entry.getUser());
-        }
-
-
-        roster.addRosterListener(new RosterListener() {
-            // Ignored events public void entriesAdded(Collection<String> addresses) {}
-            public void entriesDeleted(Collection<String> addresses) {
-            }
-
-            public void entriesUpdated(Collection<String> addresses) {
-            }
-            public void entriesAdded(Collection<String> addresses) {
-            }
-
-            public void presenceChanged(Presence presence) {
-                Log.e("conectacaralho", "Presence changed: " + presence.getFrom() + " " + presence);
-            }
-        });
-        people.add(new People("Wagner"));
-        people.add(new People("Luci"));
-        people.add(new People("Giulia"));
-        people.add(new People("Giulia"));
-        people.add(new People("Renato"));
-        people.add(new People("Andre"));
-        people.add(new People("Guigo"));
-        people.add(new People("Phillipe"));
-        people.add(new People("Mary"));
-        people.add(new People("Bruno"));
-*/
+        profileTxtView = (TextView) findViewById(R.id.profileTxtView);
         events_list = (ListView) findViewById(R.id.peopleBored);
-        events_list.setAdapter(new PeopleAdapter(this, people));
-
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         final Button btn = (Button) findViewById(R.id.buttonBored);
+        final TextView txt = (TextView) findViewById(R.id.textPress);
+
+        /* SET ALL ON CLICK LISTENERS */
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                new ConnectAndLoad(BoredActivity.this).execute();
                 events_list.setVisibility(View.VISIBLE);
                 btn.setVisibility(View.INVISIBLE);
                 fab.setVisibility(View.VISIBLE);
+                txt.setVisibility(View.INVISIBLE);
+                isRegistered = true;
             }
         });
         fab.setOnClickListener(new View.OnClickListener() {
@@ -187,9 +118,33 @@ public class BoredActivity extends AppCompatActivity {
                 events_list.setVisibility(View.INVISIBLE);
                 btn.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.INVISIBLE);
+                txt.setVisibility(View.VISIBLE);
+                isRegistered = false;
             }
         });
-        new ConnectAndLoad().execute();
+    }
+
+    public void getFacebookData()
+    {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken(); // get current access token
+        GraphRequest request = GraphRequest.newMeRequest( //make graph request for facebook data
+                accessToken,
+                new GraphRequest.GraphJSONObjectCallback() { //callback from graph request
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) { //on completed request
+                        try {
+                            profileTxtView.setText(object.getString("name"));
+                            new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
+                            //new DownloadImageSource().execute(cover.getString("source"));
+                        } catch (JSONException e) {
+                            Log.e(TAG, e.toString());
+                        }
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "picture.type(large),name,cover");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
     //METHOD TO CHECK IF USER IS LOGGED IN
@@ -198,6 +153,7 @@ public class BoredActivity extends AppCompatActivity {
         return accessToken != null; //IF THE ACCESS TOKEN IS NULL, RETURN FALSE. OTHERWISE RETURN TRUE.
     }
 
+    // CREATE OPTIONS MENU
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -205,50 +161,118 @@ public class BoredActivity extends AppCompatActivity {
         return true;
     }
 
-    public class ConnectAndLoad extends AsyncTask<String, Integer, ArrayList<People>> {
+    //ON OPTIONS ITEMS SELECTED
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.new_game:
 
-        @Override
-        protected ArrayList<People> doInBackground(String... arg0) {
-            // This is done in a background thread
+                return true;
+            case R.id.help:
+                LoginManager.getInstance().logOut();
+                Intent i = new Intent(this, LoginActivity.class);
+                startActivity(i);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    //ON PREPARE OPTIONS MENU
+    public boolean onPrepareOptionsMenu(Menu menu)
+    {
+        MenuItem registrar = menu.findItem(R.id.new_game);
+        registrar.setVisible(!isRegistered);
+        return true;
+    }
+
+    /*
+    THIS ASYNCTASK CONNECTS TO THE SERVER, IT ALSO LOGINS AND LOAD ALL THE CONTACTS
+    AND SET ALL THE LISTENERS.
+     */
+    public class ConnectAndLoad extends AsyncTask<String, Integer, Boolean> {
+        private ProgressDialog dialog;
+
+        public ConnectAndLoad(Activity activity)
+        {
+            this.dialog = new ProgressDialog(activity);
+            this.dialog.setTitle("Hello, it's me.");
+            this.dialog.setMessage("We're settings things up");
+            dialog.show();
+        }
+
+        public KeyStore getKeyStore()
+        {
             InputStream ins = getApplicationContext().getResources().openRawResource(R.raw.keystore_bored);
             KeyStore ks = null;
             try {
                 ks = KeyStore.getInstance("BKS");
                 ks.load(ins, "123".toCharArray());
-                Log.e("XMPPChatDemoActivity", "try ks" + ks.toString());
+                Log.e(TAG, "try ks" + ks.toString());
             } catch (Exception e) {
-                Log.e("XMPPChatDemoActivity", e.toString());
+                Log.e(TAG, e.toString());
             }
+            return ks;
+        }
 
-            //CREATING TRUST MANAGER USING KEYSTORE CREATED BEFORE
+        public TrustManagerFactory getTrustManager(KeyStore ks)
+        {
             TrustManagerFactory tmf = null;
             try {
                 tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 tmf.init(ks);
-                Log.e("XMPPChatDemoActivity", "try tmf" + tmf.toString());
+                Log.e(TAG, "try tmf" + tmf.toString());
             } catch (Exception e) {
-                Log.e("XMPPChatDemoActivity", e.toString());
+                Log.e(TAG, e.toString());
             }
+            return tmf;
+        }
 
-            //CREATING SSLCONTEXT USING TRUST MANAGER CREATED BEFORE
-            SSLContext sslctx = null;
+        public SSLContext getSSLContext(TrustManagerFactory tmf)
+        {
+            SSLContext ssl = null;
+
             try {
-                sslctx = SSLContext.getInstance("TLS");
-                sslctx.init(null, tmf.getTrustManagers(), new SecureRandom());
-                Log.e("XMPPChatDemoActivity", "try ssl" + sslctx.toString());
+                ssl = SSLContext.getInstance("TLS");
+                ssl.init(null, tmf.getTrustManagers(), new SecureRandom());
+                Log.e(TAG, "try ssl" + ssl.toString());
             } catch (Exception e) {
-                Log.e("XMPPChatDemoActivity", e.toString());
+                Log.e(TAG, e.toString());
             }
+            return ssl;
+        }
 
-            //CREATE A CONNECTION
+        public void connect(){
+            //TRY TO CONNECT
+            try{
+                connection.setPacketReplyTimeout(10000);
+                connection.connect();
+                Log.e(TAG, "conectado: " + connection.isConnected());
+            } catch(Exception e)
+            {
+                Log.e(TAG, e.toString());
+            }
+        }
+        public void login(){
+            try{
+                connection.login();
+                Log.e(TAG, "conectado to: " + connection.getUser());
+            } catch(Exception e)
+            {
+                Log.e(TAG, e.toString());
+            }
+        }
+        public void setConnectionConfiguration()
+        {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword("a", "a")
                     .setServiceName(serviceName)
                     .setHost(host)
                     .setResource(resource)
                     .setPort(port)
-                    .setCustomSSLContext(sslctx)
+                    .setCustomSSLContext(getSSLContext(getTrustManager(getKeyStore())))
                     .setHostnameVerifier(new HostnameVerifier() {
                         @Override
                         public boolean verify(String hostname, SSLSession session) {
@@ -259,159 +283,131 @@ public class BoredActivity extends AppCompatActivity {
             connection = new XMPPTCPConnection(config);
             SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
             SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
-            //I need to see what setHostnameVerifier and SASLAuthentication do
-
-            //TRY TO CONNECT
-            try{
-                connection.setPacketReplyTimeout(10000);
-                connection.connect();
-                Log.e("conectacaralho", "conectado: " + connection.isConnected());
-            } catch(Exception e)
+        }
+        @Override
+        @SuppressWarnings("all")
+        protected Boolean doInBackground(String... arg0) {
+            if(MyConnectionManager.getInstance() != null)
             {
-                Log.e("conectacaralho", e.toString());
-            }
-
-            //TRY TO LOGIN
-            try{
-                connection.login();
-                Log.e("conectacaralho", "conectado to: " + connection.getUser());
-            } catch(Exception e)
-            {
-                Log.e("conectacaralho", e.toString());
-            }
-
-            Roster roster = Roster.getInstanceFor(connection);
-            try {
-                if (!roster.isLoaded())
-                    roster.reloadAndWait();
-            } catch(Exception e)
-            {
-                Log.e("conectacaralho", "reload");
-            }
-
-            Collection<RosterEntry> entries = roster.getEntries();
-            Log.e("conectacaralho", "vazio: " + entries.isEmpty());
-            for (RosterEntry entry : entries) {
-                people.add(new People(entry.getUser()));
-                Log.e("conectacaralho", "" + entry.getUser());
-            }
-
-            MyConnectionManager.getInstance().setConnection(connection);
-            ChatManager chatmanager = ChatManager.getInstanceFor(connection);
-            chatmanager.addChatListener(new ChatManagerListener() {
-                @Override
-                public void chatCreated(org.jivesoftware.smack.chat.Chat chat, boolean createdLocally) {
-                    chat.addMessageListener(new ChatMessageListener() {
-                        @Override
-                        public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
-                            Log.e("recebenu", chat.getParticipant() + ". m: " + message.getBody());
-                            if (message.getBody() != null) {
-                                Log.e("recebenu", "eba");
-                                addItem(chat.getParticipant());
-                            }
-                        }
-                    });
+                if(MyConnectionManager.getInstance().getConnection() != null)
+                {
+                    if(MyConnectionManager.getInstance().isConnected())
+                    {
+                        return false;
+                    }
                 }
-            });
-            return people;
+            }
+
+            setConnectionConfiguration();
+            connect();
+            login();
+            MyConnectionManager.getInstance().setConnection(connection);
+
+            return true;
         }
 
         public void addItem(String message){
             people.add(new People(message + ": new message."));
-            ((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
+            //((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
         }
 
-
-        public void addItem(){
-            Log.e("conectacaralho", "no additem");
-            Log.e("conectacaralho", "n: " + people.size());
-            people.add(new People("oi"));
-            Log.e("conectacaralho", "n: " + people.size());
-            ((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
-        }
-        /**
-         * Called after the image has been downloaded
-         * -> this calls a function on the main thread again
-         */
-        protected void onPostExecute(ArrayList<People> p)
+        protected void onPostExecute(Boolean boo)
         {
-            events_list.setAdapter(new PeopleAdapter(my, people));
-            Roster roster = Roster.getInstanceFor(connection);
-            roster.addRosterListener(new RosterListener() {
-                // Ignored events public void entriesAdded(Collection<String> addresses) {}
-                public void entriesDeleted(Collection<String> addresses) {
+            if(boo) {
+                events_list.setAdapter(new PeopleAdapter(BoredActivity.this, people));
+                Roster roster = Roster.getInstanceFor(connection);
+                try {
+                    if (!roster.isLoaded())
+                        roster.reloadAndWait();
+                } catch (Exception e) {
+                    Log.e(TAG, "reload");
                 }
 
-                public void entriesUpdated(Collection<String> addresses) {
+                Collection<RosterEntry> entries = roster.getEntries();
+                Log.e(TAG, "vazio: " + entries.isEmpty());
+                for (RosterEntry entry : entries) {
+                    people.add(new People(entry.getUser()));
+                    Log.e(TAG, "" + entry.getUser());
                 }
+                roster.addRosterListener(new RosterListener() {
+                    // Ignored events public void entriesAdded(Collection<String> addresses) {}
+                    public void entriesDeleted(Collection<String> addresses) {
+                    }
 
-                public void entriesAdded(Collection<String> addresses) {
-                }
+                    public void entriesUpdated(Collection<String> addresses) {
+                    }
 
-                public void presenceChanged(Presence presence) {
-                    Log.e("conectacaralho", "Presence changed: " + presence.getFrom() + " " + presence);
-                    addItem();
-                }
-            });
+                    public void entriesAdded(Collection<String> addresses) {
+                    }
+
+                    public void presenceChanged(Presence presence) {
+                        people.add(new People("oi"));
+                        //((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
+                    }
+                });
+                ChatManager chatmanager = ChatManager.getInstanceFor(connection);
+                chatmanager.addChatListener(new ChatManagerListener() {
+                    @Override
+                    public void chatCreated(org.jivesoftware.smack.chat.Chat chat, boolean createdLocally) {
+                        chat.addMessageListener(new ChatMessageListener() {
+                            @Override
+                            public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
+                                Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
+                                if (message.getBody() != null) {
+                                    Log.e(TAG, "eba");
+                                    addItem(chat.getParticipant());
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            dialog.dismiss();
         }
     }
 
-
-
-
-
-    private void setImage(Drawable drawable)
-    {
-        if(Build.VERSION.SDK_INT >= 16) {
-            profileImgView.setBackground(drawable);
-        } else {
-            profileImgView.setBackgroundDrawable(drawable);
-        }
-    }
-
+    /*
+    THIS ASYNCTASK DOWNLOADS THE GIVEN IMAGE IN BACKGROUD AND THEN SETS
+    IT TO AN IMAGE VIEW.
+     */
     public class DownloadImage extends AsyncTask<String, Integer, Drawable> {
 
         @Override
         protected Drawable doInBackground(String... arg0) {
-            // This is done in a background thread
-            return downloadImage(arg0[0]);
-        }
-
-        /**
-         * Called after the image has been downloaded
-         * -> this calls a function on the main thread again
-         */
-        protected void onPostExecute(Drawable image)
-        {
-            setImage(image);
-        }
-
-        private Drawable downloadImage(String _url)
-        {
-            //Prepare to download image
             URL url;
             InputStream in;
             BufferedInputStream buf;
 
-            //BufferedInputStream buf;
-            try {
-                url = new URL(_url);
+            try
+            {
+                url = new URL(arg0[0]);
                 in = url.openStream();
                 buf = new BufferedInputStream(in);
                 Bitmap bMap = BitmapFactory.decodeStream(buf);
                 in.close();
                 buf.close();
-
                 Bitmap bMap2 = getCroppedBitmap(bMap, 300);
-
                 return new BitmapDrawable(getApplicationContext().getResources(), bMap2);
-
-            } catch (Exception e) {
-                Log.e("Error reading file", e.toString());
+            }
+            catch (Exception e)
+            {
+                Log.e(TAG, e.toString());
             }
 
             return null;
         }
+
+        @SuppressWarnings("deprecation")
+        protected void onPostExecute(Drawable image)
+        {
+
+            if(Build.VERSION.SDK_INT >= 16) {
+                profileImgView.setBackground(image);
+            } else {
+                profileImgView.setBackgroundDrawable(image);
+            }
+        }
+
         public Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
             Bitmap sbmp;
             if(bmp.getWidth() != radius || bmp.getHeight() != radius)
@@ -422,7 +418,6 @@ public class BoredActivity extends AppCompatActivity {
                     sbmp.getHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(output);
 
-            final int color = 0xffa19774;
             final Paint paint = new Paint();
             final Rect rect = new Rect(0, 0, sbmp.getWidth(), sbmp.getHeight());
 
@@ -435,7 +430,6 @@ public class BoredActivity extends AppCompatActivity {
                     sbmp.getWidth() / 2+0.1f, paint);
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
             canvas.drawBitmap(sbmp, rect, rect, paint);
-
 
             return output;
         }

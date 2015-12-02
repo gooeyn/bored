@@ -1,6 +1,5 @@
 package gooeyn.bored;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 
@@ -36,6 +35,7 @@ public class MyConnectionManager {
         }
         return instance;
     }
+
     public void connect(final Context context) {
         //final ProgressDialog dialog = ProgressDialog.show(context, "Connecting...", "Please wait...", false);
 
@@ -111,50 +111,9 @@ public class MyConnectionManager {
                 {
                     Log.e("conectacaralho", "TRYING TO LOGIN. " + e.toString());
                 }
-
-                /* TRY TO SEND A MESSAGE
-                Message message = new Message("b@ec2-54-84-237-97.compute-1.amazonaws.com", Message.Type.chat);
-                message.setFrom(connection.getUser());
-                message.setBody("sou o celular do gui");
-                try {
-                    connection.sendStanza(message);
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", e.toString());
-                }*/
-
-                /* TRY TO SET PRESENCE
-                Presence presence = new Presence(Presence.Type.available);
-                presence.setStatus("Hike anyone?");
-// Send the packet (assume we have an XMPPConnection instance called "con").
-                try {
-                    connection.sendStanza(presence);
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", "presence");
-                }
-                */
-
-                /*TRY TO GET ROSTER (FRIENDS)
-                Roster roster = Roster.getInstanceFor(connection);
-                try {
-                    if (!roster.isLoaded())
-                        roster.reloadAndWait();
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", "reload");
-                }
-
-                Collection<RosterEntry> entries = roster.getEntries();
-                Log.e("conectacaralho", "vazio: " + entries.isEmpty());
-                for (RosterEntry entry : entries) {
-                    Log.e("conectacaralho", entry.getUser());
-                }*/
-                //dialog.dismiss();
             }
         });
         t.start();
-        //dialog.show();
     }
     public AbstractXMPPConnection getConnection() {
         return connection;
@@ -164,6 +123,7 @@ public class MyConnectionManager {
     {
         return connection.isConnected();
     }
+
     public void setConnection(AbstractXMPPConnection connection)
     {
         this.connection = connection;

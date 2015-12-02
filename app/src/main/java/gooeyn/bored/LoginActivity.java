@@ -18,6 +18,11 @@ import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,14 +35,24 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManagerFactory;
 
 public class LoginActivity extends AppCompatActivity {
     CallbackManager callbackManager; //call back manager for the login button
     HashMap<String, String> hashData = new HashMap<>(); //hash map containing the data from facebook to be added to mysql database
     LoginButton loginButton;
-
+    String serviceName = "54.84.237.97";
+    String host = "54.84.237.97";
+    int port = 5225;
+    String resource = "Android";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +77,9 @@ public class LoginActivity extends AppCompatActivity {
                                     hashData.put("last_name", object.getString("last_name"));
                                     hashData.put("facebook_id", object.getString("id"));
 
-                                    if (object.getString("gender").equals("male"))
-                                    {
+                                    if (object.getString("gender").equals("male")) {
                                         hashData.put("gender", "m");
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         hashData.put("gender", "f");
                                     }
                                     insertToDatabase(); //insert all the data to the database
@@ -81,12 +93,6 @@ public class LoginActivity extends AppCompatActivity {
                 parameters.putString("fields", "name,first_name,last_name,gender,id");
                 request.setParameters(parameters);
                 request.executeAsync();
-
-                //AFTER SUCCESS ON LOGIN & ADDING USER TO THE DATABASE (IF NEW USER)
-                //OPEN MAIN ACTIVITY AND FINISHES LOGIN ACTIVITY
-                Intent i = new Intent(LoginActivity.this, ButtonActivity.class);
-                startActivity(i);
-                finish();
             }
 
             @Override
@@ -136,6 +142,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 return null;
             }
+            protected void onPostExecute(Void v)
+            {
+                Intent i = new Intent(LoginActivity.this, BoredActivity.class);
+                startActivity(i);
+                finish();
+            }
         }
         InsertTask task = new InsertTask(); //new insert task
         task.execute(); //execute insert task
@@ -168,10 +180,81 @@ public class LoginActivity extends AppCompatActivity {
             int response = conn.getResponseCode(); //get responde code from url
             Log.d("sqloutside", "The response is: " + response);
             is = conn.getInputStream(); //get input stream
+            Log.i("conecta", "" + response);
         } finally {
             if (is != null) { //if input stream was opened
                 is.close(); //closes input stream
             }
+        }
+        InputStream ins = getApplicationContext().getResources().openRawResource(R.raw.keystore_bored2);
+        KeyStore ks = null;
+        try {
+            ks = KeyStore.getInstance("BKS");
+            ks.load(ins, "123".toCharArray());
+            Log.e("XMPPChatDemoActivity", "try ks" + ks.toString());
+        } catch (Exception e) {
+            Log.e("XMPPChatDemoActivity", e.toString());
+        }
+
+        //CREATING TRUST MANAGER USING KEYSTORE CREATED BEFORE
+        TrustManagerFactory tmf = null;
+        try {
+            tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(ks);
+            Log.e("XMPPChatDemoActivity", "try tmf" + tmf.toString());
+        } catch (Exception e) {
+            Log.e("XMPPChatDemoActivity", e.toString());
+        }
+
+        //CREATING SSLCONTEXT USING TRUST MANAGER CREATED BEFORE
+        SSLContext sslctx = null;
+        try {
+            sslctx = SSLContext.getInstance("TLS");
+            sslctx.init(null, tmf.getTrustManagers(), new SecureRandom());
+            Log.e("XMPPChatDemoActivity", "try ssl" + sslctx.toString());
+        } catch (Exception e) {
+            Log.e("XMPPChatDemoActivity", e.toString());
+        }
+
+        //CREATE A CONNECTION
+        XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                .setUsernameAndPassword("a", "a")
+                .setServiceName(serviceName)
+                .setHost(host)
+                .setResource(resource)
+                .setPort(port)
+                .setCustomSSLContext(sslctx)
+                .setHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                })
+                .build();
+
+        AbstractXMPPConnection connection;
+        connection = new XMPPTCPConnection(config);
+        SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
+        SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
+        //I need to see what setHostnameVerifier and SASLAuthentication do
+
+        //TRY TO CONNECT
+        try{
+            connection.setPacketReplyTimeout(10000);
+            connection.connect();
+            Log.e("conectacaralho", "TRYING TO CONNECT. IS CONNECTED: " + connection.isConnected());
+        } catch(Exception e)
+        {
+            Log.e("conectacaralho", "TRYING TO CONNECT. " + e.toString());
+        }
+
+        AccountManager accountManager = AccountManager.getInstance(connection);
+        try {
+            accountManager.createAccount(hashData.get("facebook_id"), "smack");
+            Log.e("conectacaralho", "TRYING TO CONNECT. " + hashData.get("facebook_id"));
+        } catch (Exception e)
+        {
+            Log.e("conectacaralho", "TRYING TO CONNECT. " + e.toString());
         }
         return true;
     }

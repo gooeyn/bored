@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -52,20 +51,24 @@ public class PeopleAdapter extends BaseAdapter {
         // TODO Auto-generated method stub
         Holder holder=new Holder();
         View rowView;
-        rowView = inflater.inflate(R.layout.people_list, null);
-        holder.tv=(TextView) rowView.findViewById(R.id.textView1);
-        holder.img=(ImageView) rowView.findViewById(R.id.imageView1);
-        holder.tv.setText(events_list.get(position).name);
+        if(convertView == null) {
+            rowView = inflater.inflate(R.layout.people_list, null);
+            holder.tv = (TextView) rowView.findViewById(R.id.textView1);
+            holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
+            holder.tv.setText(events_list.get(position).name);
 
-        rowView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(context, ConversationActivity.class);
-                i.putExtra("user", events_list.get(position).name);
-                context.startActivity(i);
-            }
-        });
+            rowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(context, ConversationActivity.class);
+                    i.putExtra("user", events_list.get(position).name);
+                    context.startActivity(i);
+                }
+            });
+        } else {
+            return convertView;
+        }
         return rowView;
     }
 }

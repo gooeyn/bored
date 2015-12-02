@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.packet.Message;
@@ -32,7 +31,6 @@ public class ConversationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final String user = intent.getStringExtra("user");
         setTitle(user);
-        Log.e("chatgooeyn", user);
         listview.setAdapter(new ChatAdapter(getApplicationContext(), myChat));
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override

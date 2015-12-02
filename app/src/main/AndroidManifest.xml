@@ -22,28 +22,25 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
         <!-- FACEBOOK -->
-        <activity
-            android:name=".ButtonActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
 
-        </activity>
+
+
+
         <activity
             android:name=".LoginActivity"
             android:excludeFromRecents="true"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
+
         <activity android:name=".ConversationActivity" >
             android:parentActivityName="MainActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".BoredActivity" />
         </activity>
+
         <activity android:name=".BoredActivity"
+            android:icon="@drawable/ic_chat_bubble_outline_black_24dp"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,6 +48,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
