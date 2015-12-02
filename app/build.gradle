@@ -29,4 +29,5 @@ dependencies {
 
     compile "org.igniterealtime.smack:smack-android:4.1.0"
     compile "org.igniterealtime.smack:smack-tcp:4.1.0"
+    compile 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
 }

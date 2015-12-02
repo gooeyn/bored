@@ -9,17 +9,18 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class ChatAdapter extends BaseAdapter {
     private static LayoutInflater inflater=null;
-    private ArrayList<Chat> events_list = new ArrayList<>();
+    private ArrayList<MyChat> events_list = new ArrayList<>();
     Context context;
-    public ChatAdapter(FragmentActivity mainActivity, ArrayList<Chat> events_list)
+    public ChatAdapter(Context context, ArrayList<MyChat> events_list)
     {
         this.events_list = events_list;
-        context = mainActivity;
+        this.context = context;
         inflater = ( LayoutInflater )context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -58,9 +59,10 @@ public class ChatAdapter extends BaseAdapter {
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(context, ConversationActivity.class);
                 i.putExtra("user", events_list.get(position).name);
-                context.startActivity(new Intent(context, ConversationActivity.class));
+                context.startActivity(i);
             }
         });
         return rowView;

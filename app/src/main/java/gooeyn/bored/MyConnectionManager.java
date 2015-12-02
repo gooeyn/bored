@@ -1,5 +1,6 @@
 package gooeyn.bored;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 
@@ -35,13 +36,14 @@ public class MyConnectionManager {
         }
         return instance;
     }
-
     public void connect(final Context context) {
+        //final ProgressDialog dialog = ProgressDialog.show(context, "Connecting...", "Please wait...", false);
+
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 //LOADING KEY STORE
-                InputStream ins = context.getResources().openRawResource(R.raw.keystore2);
+                InputStream ins = context.getResources().openRawResource(R.raw.keystore_bored2);
                 KeyStore ks = null;
                 try {
                     ks = KeyStore.getInstance("BKS");
@@ -95,19 +97,19 @@ public class MyConnectionManager {
                 try{
                     connection.setPacketReplyTimeout(10000);
                     connection.connect();
-                    Log.e("conectacaralho", "conectado: " + connection.isConnected());
+                    Log.e("conectacaralho", "TRYING TO CONNECT. IS CONNECTED: " + connection.isConnected());
                 } catch(Exception e)
                 {
-                    Log.e("conectacaralho", e.toString());
+                    Log.e("conectacaralho", "TRYING TO CONNECT. " + e.toString());
                 }
 
                 //TRY TO LOGIN
                 try{
                     connection.login();
-                    Log.e("conectacaralho", "conectado to: " + connection.getUser());
+                    Log.e("conectacaralho", "TRYING TO LOGIN. CONNECTED TO: " + connection.getUser());
                 } catch(Exception e)
                 {
-                    Log.e("conectacaralho", e.toString());
+                    Log.e("conectacaralho", "TRYING TO LOGIN. " + e.toString());
                 }
 
                 /* TRY TO SEND A MESSAGE
@@ -148,9 +150,11 @@ public class MyConnectionManager {
                 for (RosterEntry entry : entries) {
                     Log.e("conectacaralho", entry.getUser());
                 }*/
+                //dialog.dismiss();
             }
         });
         t.start();
+        //dialog.show();
     }
     public AbstractXMPPConnection getConnection() {
         return connection;
@@ -159,5 +163,9 @@ public class MyConnectionManager {
     public boolean isConnected()
     {
         return connection.isConnected();
+    }
+    public void setConnection(AbstractXMPPConnection connection)
+    {
+        this.connection = connection;
     }
 }
