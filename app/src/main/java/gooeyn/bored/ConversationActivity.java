@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class ConversationActivity extends AppCompatActivity {
     private ListView listview;
     ArrayList<MyChat> myChat = new ArrayList<>();
+    String TAG = "myshit";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +45,7 @@ public class ConversationActivity extends AppCompatActivity {
                     connection.sendStanza(message);
                 } catch(Exception e)
                 {
-                    Log.e("conectacaralho", e.toString());
+                    Log.e(TAG, e.toString());
                 }
 
 
@@ -57,17 +58,15 @@ public class ConversationActivity extends AppCompatActivity {
                         chat.addMessageListener(new ChatMessageListener() {
                             @Override
                             public void processMessage(Chat chat, Message message) {
-                                Log.e("recebenu", chat.getParticipant() + ". m: " + message.getBody());
+                                Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
                                 if (message.getBody() != null) {
-                                    Log.e("recebenu", "eba");
+                                    Log.e(TAG, "eba");
                                     addItem(message.getBody());
                                 }
                             }
                         });
                     }
                 });
-
-
                 myChat.add(new MyChat(text));
                 listview.invalidateViews();
             }
@@ -75,10 +74,8 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     public void addItem(String message){
-        Log.e("conectacaralho", "no additem");
-        Log.e("conectacaralho", "n: " + myChat.size());
         myChat.add(new MyChat(message));
-        Log.e("conectacaralho", "n: " + myChat.size());
+        Log.e(TAG, "n: " + myChat.size());
         ((BaseAdapter) listview.getAdapter()).notifyDataSetChanged();
     }
 }

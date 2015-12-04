@@ -8,8 +8,6 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_login" tools:context="gooeyn.outside.LoginActivity">
-
-
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
@@ -25,30 +23,7 @@
         android:textColor="#ff0000"
         android:background="@drawable/myfbbutton"
         style="@style/FacebookLoginButton"
-        android:textSize="20dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="M e e t u p"
-        android:id="@+id/textView"
-        android:textColor="#ffffff"
-        android:textSize="128px"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="never get bored."
-        android:id="@+id/textView2"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:textColor="#ffffff" />
+        android:textSize="20sp" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -64,18 +39,13 @@
             android:text="b"
             android:id="@+id/textView5"
             android:textSize="80sp"
-            android:layout_below="@+id/textView"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
             android:textColor="#404040" />
 
         <Button
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:id="@+id/button3"
-            android:layout_centerVertical="true"
-            android:background="@drawable/bigredbutton"
-            android:layout_centerHorizontal="true" />
+            android:background="@drawable/bigredbutton" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,10 +53,6 @@
             android:text="red"
             android:textSize="80sp"
             android:id="@+id/textView6"
-            android:layout_below="@+id/textView"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
             android:textColor="#404040" />
     </LinearLayout>
-
 </RelativeLayout>

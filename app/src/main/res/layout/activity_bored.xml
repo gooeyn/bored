@@ -7,7 +7,7 @@
     android:background="#ffffff"
     tools:context="gooeyn.bored.BoredActivity">
     <include
-        layout="@layout/heade_bored"
+        layout="@layout/header_bored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/include" />
@@ -16,9 +16,9 @@
         layout="@layout/content_bored"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:id="@+id/include2"
         android:layout_below="@+id/include" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

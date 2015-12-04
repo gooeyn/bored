@@ -25,17 +25,14 @@ public class ChatAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
         return events_list.size();
     }
     @Override
     public Object getItem(int position) {
-        // TODO Auto-generated method stub
         return position;
     }
     @Override
     public long getItemId(int position) {
-        // TODO Auto-generated method stub
         return position;
     }
 
@@ -47,7 +44,6 @@ public class ChatAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        // TODO Auto-generated method stub
         Holder holder=new Holder();
         View rowView;
         if(convertView == null) {

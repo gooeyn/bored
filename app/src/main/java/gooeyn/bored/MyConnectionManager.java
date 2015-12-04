@@ -7,7 +7,6 @@ import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jivesoftware.smackx.iqregister.AccountManager;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -41,15 +40,6 @@ public class MyConnectionManager {
     public AbstractXMPPConnection getConnection() {
         return connection;
     }
-
-    public boolean isConnected()
-    {
-        return connection.isConnected();
-    }
-
-
-
-
 
     public KeyStore getKeyStore(Context context)
     {
@@ -103,6 +93,7 @@ public class MyConnectionManager {
             Log.e(TAG, e.toString());
         }
     }
+
     public void login(){
         try{
             connection.login("b", "b");
@@ -131,10 +122,5 @@ public class MyConnectionManager {
         connection = new XMPPTCPConnection(config);
         SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
         SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
-    }
-
-    public void createAccount(String user, String pass)
-    {
-
     }
 }

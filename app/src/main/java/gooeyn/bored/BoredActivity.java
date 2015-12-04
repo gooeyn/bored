@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -118,7 +119,6 @@ public class BoredActivity extends AppCompatActivity {
                         try {
                             profileTxtView.setText(object.getString("name"));
                             new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
-                            //new DownloadImageSource().execute(cover.getString("source"));
                         } catch (JSONException e) {
                             Log.e(TAG, e.toString());
                         }
@@ -202,7 +202,7 @@ public class BoredActivity extends AppCompatActivity {
 
         public void addItem(String message){
             people.add(new People(message + ": new message."));
-            //((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
+            ((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
         }
 
         protected void onPostExecute(Boolean boo)

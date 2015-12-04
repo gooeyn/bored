@@ -26,6 +26,7 @@
     <style name="Widget.AppCompat.DrawerArrowToggle" parent="Base.Widget.AppCompat.DrawerArrowToggle">
         <item name="color">#000000</item>
     </style>
+
     <style name="FacebookLoginButton">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:layout_marginTop">10dp</item>

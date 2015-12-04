@@ -73,8 +73,8 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                     insertToDatabase(); //insert all the data to the database
                                 } catch (JSONException e) {
-                                    Log.d("loginapp", e.toString());
-                                    Log.d("loginapp", object.toString());
+                                    Log.e(TAG, e.toString());
+                                    Log.e(TAG, object.toString());
                                 }
 
                             }
@@ -87,12 +87,12 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onCancel() { //on canceled login
-                Log.d("loginapp", "oncancel");
+                Log.e(TAG, "oncancel");
             }
 
             @Override
             public void onError(FacebookException exception) { //on login error
-                Log.d("loginapp", "onerror");
+                Log.e(TAG, "onerror");
             }
         });
     }
@@ -133,16 +133,16 @@ public class LoginActivity extends AppCompatActivity {
                     AccountManager accountManager = AccountManager.getInstance(MyConnectionManager.getInstance().getConnection());
                     try {
                         accountManager.createAccount(hashData.get("facebook_id") + "new2", "smack");
-                        Log.e("conectacaralho", "TRYING TO CONNECT.");
+                        Log.e(TAG, "TRYING TO CONNECT.");
                     } catch (Exception e)
                     {
-                        Log.e("conectacaralho", "TRYING TO CONNECT. " + e.toString());
+                        Log.e(TAG, "TRYING TO CONNECT. " + e.toString());
                     }
                     //MyConnectionManager.getInstance().createAccount(hashData.get("facebook_id" + "a"), "smack");
                 }
                 catch (Exception e) //catches IO exception
                 {
-                    Log.d("sqloutside", e.toString());
+                    Log.e(TAG, e.toString());
                 }
 
                 return null;
@@ -183,9 +183,9 @@ public class LoginActivity extends AppCompatActivity {
 
             conn.connect(); //opens a communication link with given url
             int response = conn.getResponseCode(); //get responde code from url
-            Log.d("sqloutside", "The response is: " + response);
+            Log.e(TAG, "The response is: " + response);
             is = conn.getInputStream(); //get input stream
-            Log.i("conecta", is.toString());
+            Log.e(TAG, is.toString());
         } finally {
             if (is != null) { //if input stream was opened
                 is.close(); //closes input stream
