@@ -7,6 +7,7 @@ import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -23,6 +24,7 @@ public class MyConnectionManager {
     String host = "54.84.237.97";
     int port = 5225;
     String resource = "Android";
+    String TAG = "myshit";
 
     private static MyConnectionManager instance = null;
 
@@ -36,85 +38,6 @@ public class MyConnectionManager {
         return instance;
     }
 
-    public void connect(final Context context) {
-        //final ProgressDialog dialog = ProgressDialog.show(context, "Connecting...", "Please wait...", false);
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //LOADING KEY STORE
-                InputStream ins = context.getResources().openRawResource(R.raw.keystore_bored2);
-                KeyStore ks = null;
-                try {
-                    ks = KeyStore.getInstance("BKS");
-                    ks.load(ins, "123".toCharArray());
-                    Log.e("XMPPChatDemoActivity", "try ks" + ks.toString());
-                } catch (Exception e) {
-                    Log.e("XMPPChatDemoActivity", e.toString());
-                }
-
-                //CREATING TRUST MANAGER USING KEYSTORE CREATED BEFORE
-                TrustManagerFactory tmf = null;
-                try {
-                    tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                    tmf.init(ks);
-                    Log.e("XMPPChatDemoActivity", "try tmf" + tmf.toString());
-                } catch (Exception e) {
-                    Log.e("XMPPChatDemoActivity", e.toString());
-                }
-
-                //CREATING SSLCONTEXT USING TRUST MANAGER CREATED BEFORE
-                SSLContext sslctx = null;
-                try {
-                    sslctx = SSLContext.getInstance("TLS");
-                    sslctx.init(null, tmf.getTrustManagers(), new SecureRandom());
-                    Log.e("XMPPChatDemoActivity", "try ssl" + sslctx.toString());
-                } catch (Exception e) {
-                    Log.e("XMPPChatDemoActivity", e.toString());
-                }
-
-                //CREATE A CONNECTION
-                XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                        .setUsernameAndPassword("a", "a")
-                        .setServiceName(serviceName)
-                        .setHost(host)
-                        .setResource(resource)
-                        .setPort(port)
-                        .setCustomSSLContext(sslctx)
-                        .setHostnameVerifier(new HostnameVerifier() {
-                            @Override
-                            public boolean verify(String hostname, SSLSession session) {
-                                return true;
-                            }
-                        })
-                        .build();
-                connection = new XMPPTCPConnection(config);
-                SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
-                SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
-                //I need to see what setHostnameVerifier and SASLAuthentication do
-
-                //TRY TO CONNECT
-                try{
-                    connection.setPacketReplyTimeout(10000);
-                    connection.connect();
-                    Log.e("conectacaralho", "TRYING TO CONNECT. IS CONNECTED: " + connection.isConnected());
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", "TRYING TO CONNECT. " + e.toString());
-                }
-
-                //TRY TO LOGIN
-                try{
-                    connection.login();
-                    Log.e("conectacaralho", "TRYING TO LOGIN. CONNECTED TO: " + connection.getUser());
-                } catch(Exception e)
-                {
-                    Log.e("conectacaralho", "TRYING TO LOGIN. " + e.toString());
-                }
-            }
-        });
-        t.start();
-    }
     public AbstractXMPPConnection getConnection() {
         return connection;
     }
@@ -124,8 +47,94 @@ public class MyConnectionManager {
         return connection.isConnected();
     }
 
-    public void setConnection(AbstractXMPPConnection connection)
+
+
+
+
+    public KeyStore getKeyStore(Context context)
     {
-        this.connection = connection;
+        InputStream ins = context.getResources().openRawResource(R.raw.keystore_bored);
+        KeyStore ks = null;
+        try {
+            ks = KeyStore.getInstance("BKS");
+            ks.load(ins, "123".toCharArray());
+            Log.e(TAG, "try ks" + ks.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        return ks;
+    }
+
+    public TrustManagerFactory getTrustManager(KeyStore ks)
+    {
+        TrustManagerFactory tmf = null;
+        try {
+            tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(ks);
+            Log.e(TAG, "try tmf" + tmf.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        return tmf;
+    }
+
+    public SSLContext getSSLContext(TrustManagerFactory tmf)
+    {
+        SSLContext ssl = null;
+
+        try {
+            ssl = SSLContext.getInstance("TLS");
+            ssl.init(null, tmf.getTrustManagers(), new SecureRandom());
+            Log.e(TAG, "try ssl" + ssl.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        return ssl;
+    }
+
+    public void connect(){
+        //TRY TO CONNECT
+        try{
+            connection.setPacketReplyTimeout(10000);
+            connection.connect();
+            Log.e(TAG, "conectado: " + connection.isConnected());
+        } catch(Exception e)
+        {
+            Log.e(TAG, e.toString());
+        }
+    }
+    public void login(){
+        try{
+            connection.login("b", "b");
+            Log.e(TAG, "conectado to: " + connection.getUser());
+        } catch(Exception e)
+        {
+            Log.e(TAG, e.toString());
+        }
+    }
+    public void setConnectionConfiguration(Context context)
+    {
+        XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                .setUsernameAndPassword("a", "a")
+                .setServiceName(serviceName)
+                .setHost(host)
+                .setResource(resource)
+                .setPort(port)
+                .setCustomSSLContext(getSSLContext(getTrustManager(getKeyStore(context))))
+                .setHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                })
+                .build();
+        connection = new XMPPTCPConnection(config);
+        SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
+        SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
+    }
+
+    public void createAccount(String user, String pass)
+    {
+
     }
 }

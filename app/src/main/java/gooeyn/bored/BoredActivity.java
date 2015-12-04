@@ -23,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -35,31 +34,20 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 
-import org.jivesoftware.smack.AbstractXMPPConnection;
-import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.KeyStore;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManagerFactory;
 
 public class BoredActivity extends AppCompatActivity {
     String TAG = "myshit";
@@ -67,11 +55,7 @@ public class BoredActivity extends AppCompatActivity {
     TextView profileTxtView;
     ListView events_list;
     boolean isRegistered = false;
-    AbstractXMPPConnection connection;
-    String serviceName = "54.84.237.97";
-    String host = "54.84.237.97";
-    int port = 5225;
-    String resource = "Android";
+
     ArrayList<People> people = new ArrayList<>();
 
     @Override
@@ -86,42 +70,41 @@ public class BoredActivity extends AppCompatActivity {
             startActivity(i); //START LOGIN ACTIVITY
             finish(); //FINISHES MAIN ACTIVITY
         }
-
-        /* CONNECT AND GET DATA (BACKGROUD) */
-        //MyConnectionManager.getInstance().connect(getApplicationContext());
-        getFacebookData();
+        else {
+            getFacebookData();
 
 
         /* DECLARE ALL VARIABLES */
-        profileImgView = (ImageView) findViewById(R.id.profileImgView);
-        profileTxtView = (TextView) findViewById(R.id.profileTxtView);
-        events_list = (ListView) findViewById(R.id.peopleBored);
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        final Button btn = (Button) findViewById(R.id.buttonBored);
-        final TextView txt = (TextView) findViewById(R.id.textPress);
+            profileImgView = (ImageView) findViewById(R.id.profileImgView);
+            profileTxtView = (TextView) findViewById(R.id.profileTxtView);
+            events_list = (ListView) findViewById(R.id.peopleBored);
+            final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            final Button btn = (Button) findViewById(R.id.buttonBored);
+            final TextView txt = (TextView) findViewById(R.id.textPress);
 
         /* SET ALL ON CLICK LISTENERS */
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new ConnectAndLoad(BoredActivity.this).execute();
-                events_list.setVisibility(View.VISIBLE);
-                btn.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                txt.setVisibility(View.INVISIBLE);
-                isRegistered = true;
-            }
-        });
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                events_list.setVisibility(View.INVISIBLE);
-                btn.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.INVISIBLE);
-                txt.setVisibility(View.VISIBLE);
-                isRegistered = false;
-            }
-        });
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new ConnectAndLoad(BoredActivity.this).execute();
+                    events_list.setVisibility(View.VISIBLE);
+                    btn.setVisibility(View.INVISIBLE);
+                    fab.setVisibility(View.VISIBLE);
+                    txt.setVisibility(View.INVISIBLE);
+                    isRegistered = true;
+                }
+            });
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    events_list.setVisibility(View.INVISIBLE);
+                    btn.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.INVISIBLE);
+                    txt.setVisibility(View.VISIBLE);
+                    isRegistered = false;
+                }
+            });
+        }
     }
 
     public void getFacebookData()
@@ -203,106 +186,17 @@ public class BoredActivity extends AppCompatActivity {
             dialog.show();
         }
 
-        public KeyStore getKeyStore()
-        {
-            InputStream ins = getApplicationContext().getResources().openRawResource(R.raw.keystore_bored);
-            KeyStore ks = null;
-            try {
-                ks = KeyStore.getInstance("BKS");
-                ks.load(ins, "123".toCharArray());
-                Log.e(TAG, "try ks" + ks.toString());
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            return ks;
-        }
-
-        public TrustManagerFactory getTrustManager(KeyStore ks)
-        {
-            TrustManagerFactory tmf = null;
-            try {
-                tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                tmf.init(ks);
-                Log.e(TAG, "try tmf" + tmf.toString());
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            return tmf;
-        }
-
-        public SSLContext getSSLContext(TrustManagerFactory tmf)
-        {
-            SSLContext ssl = null;
-
-            try {
-                ssl = SSLContext.getInstance("TLS");
-                ssl.init(null, tmf.getTrustManagers(), new SecureRandom());
-                Log.e(TAG, "try ssl" + ssl.toString());
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            return ssl;
-        }
-
-        public void connect(){
-            //TRY TO CONNECT
-            try{
-                connection.setPacketReplyTimeout(10000);
-                connection.connect();
-                Log.e(TAG, "conectado: " + connection.isConnected());
-            } catch(Exception e)
-            {
-                Log.e(TAG, e.toString());
-            }
-        }
-        public void login(){
-            try{
-                connection.login();
-                Log.e(TAG, "conectado to: " + connection.getUser());
-            } catch(Exception e)
-            {
-                Log.e(TAG, e.toString());
-            }
-        }
-        public void setConnectionConfiguration()
-        {
-            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                    .setUsernameAndPassword("a", "a")
-                    .setServiceName(serviceName)
-                    .setHost(host)
-                    .setResource(resource)
-                    .setPort(port)
-                    .setCustomSSLContext(getSSLContext(getTrustManager(getKeyStore())))
-                    .setHostnameVerifier(new HostnameVerifier() {
-                        @Override
-                        public boolean verify(String hostname, SSLSession session) {
-                            return true;
-                        }
-                    })
-                    .build();
-            connection = new XMPPTCPConnection(config);
-            SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
-            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
-        }
         @Override
-        @SuppressWarnings("all")
         protected Boolean doInBackground(String... arg0) {
-            if(MyConnectionManager.getInstance() != null)
+            if(MyConnectionManager.getInstance().getConnection() == null)
             {
-                if(MyConnectionManager.getInstance().getConnection() != null)
-                {
-                    if(MyConnectionManager.getInstance().isConnected())
-                    {
-                        return false;
-                    }
-                }
+                MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
             }
-
-            setConnectionConfiguration();
-            connect();
-            login();
-            MyConnectionManager.getInstance().setConnection(connection);
-
+            if(!MyConnectionManager.getInstance().getConnection().isConnected())
+            {
+                MyConnectionManager.getInstance().connect();
+            }
+            MyConnectionManager.getInstance().login();
             return true;
         }
 
@@ -313,9 +207,8 @@ public class BoredActivity extends AppCompatActivity {
 
         protected void onPostExecute(Boolean boo)
         {
-            if(boo) {
                 events_list.setAdapter(new PeopleAdapter(BoredActivity.this, people));
-                Roster roster = Roster.getInstanceFor(connection);
+                Roster roster = Roster.getInstanceFor(MyConnectionManager.getInstance().getConnection());
                 try {
                     if (!roster.isLoaded())
                         roster.reloadAndWait();
@@ -345,7 +238,7 @@ public class BoredActivity extends AppCompatActivity {
                         //((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
                     }
                 });
-                ChatManager chatmanager = ChatManager.getInstanceFor(connection);
+                ChatManager chatmanager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
                 chatmanager.addChatListener(new ChatManagerListener() {
                     @Override
                     public void chatCreated(org.jivesoftware.smack.chat.Chat chat, boolean createdLocally) {
@@ -361,7 +254,7 @@ public class BoredActivity extends AppCompatActivity {
                         });
                     }
                 });
-            }
+
             dialog.dismiss();
         }
     }
