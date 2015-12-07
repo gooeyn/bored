@@ -44,6 +44,7 @@ public class PeopleAdapter extends BaseAdapter {
     {
         TextView tv;
         ImageView img;
+        TextView status;
     }
 
     @Override
@@ -53,9 +54,13 @@ public class PeopleAdapter extends BaseAdapter {
         View rowView;
         if(convertView == null) {
             rowView = inflater.inflate(R.layout.people_list, null);
+
             holder.tv = (TextView) rowView.findViewById(R.id.textView1);
             holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
+            holder.status = (TextView) rowView.findViewById(R.id.status);
+
             holder.tv.setText(events_list.get(position).name);
+            holder.status.setText(events_list.get(position).status);
 
             rowView.setOnClickListener(new View.OnClickListener() {
                 @Override

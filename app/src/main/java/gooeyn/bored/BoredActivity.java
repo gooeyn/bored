@@ -73,8 +73,6 @@ public class BoredActivity extends AppCompatActivity {
         }
         else {
             getFacebookData();
-
-
         /* DECLARE ALL VARIABLES */
             profileImgView = (ImageView) findViewById(R.id.profileImgView);
             profileTxtView = (TextView) findViewById(R.id.profileTxtView);
@@ -82,7 +80,7 @@ public class BoredActivity extends AppCompatActivity {
             final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
             final Button btn = (Button) findViewById(R.id.buttonBored);
             final TextView txt = (TextView) findViewById(R.id.textPress);
-
+            events_list.setAdapter(new PeopleAdapter(BoredActivity.this, people));
         /* SET ALL ON CLICK LISTENERS */
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -98,6 +96,7 @@ public class BoredActivity extends AppCompatActivity {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    MyConnectionManager.getInstance().notBored();
                     events_list.setVisibility(View.INVISIBLE);
                     btn.setVisibility(View.VISIBLE);
                     fab.setVisibility(View.INVISIBLE);
@@ -182,62 +181,58 @@ public class BoredActivity extends AppCompatActivity {
         {
             this.dialog = new ProgressDialog(activity);
             this.dialog.setTitle("Hello, it's me.");
-            this.dialog.setMessage("We're settings things up");
+            this.dialog.setMessage("Loading bored people..");
             dialog.show();
         }
 
         @Override
         protected Boolean doInBackground(String... arg0) {
-            if(MyConnectionManager.getInstance().getConnection() == null)
-            {
-                MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
-            }
-            if(!MyConnectionManager.getInstance().getConnection().isConnected())
-            {
-                MyConnectionManager.getInstance().connect();
-            }
+            MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
+            MyConnectionManager.getInstance().connect();
             MyConnectionManager.getInstance().login();
             return true;
         }
 
-        public void addItem(String message){
-            people.add(new People(message + ": new message."));
-            ((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
-        }
-
         protected void onPostExecute(Boolean boo)
         {
-                events_list.setAdapter(new PeopleAdapter(BoredActivity.this, people));
+                MyConnectionManager.getInstance().bored();
                 Roster roster = Roster.getInstanceFor(MyConnectionManager.getInstance().getConnection());
-                try {
-                    if (!roster.isLoaded())
-                        roster.reloadAndWait();
-                } catch (Exception e) {
+
+                try
+                {
+                    if (!roster.isLoaded()) roster.reloadAndWait();
+                }
+                catch (Exception e)
+                {
                     Log.e(TAG, "reload");
                 }
 
-                Collection<RosterEntry> entries = roster.getEntries();
-                Log.e(TAG, "vazio: " + entries.isEmpty());
-                for (RosterEntry entry : entries) {
-                    people.add(new People(entry.getUser()));
-                    Log.e(TAG, "" + entry.getUser());
-                }
+
                 roster.addRosterListener(new RosterListener() {
-                    // Ignored events public void entriesAdded(Collection<String> addresses) {}
                     public void entriesDeleted(Collection<String> addresses) {
                     }
 
                     public void entriesUpdated(Collection<String> addresses) {
                     }
 
+
                     public void entriesAdded(Collection<String> addresses) {
                     }
 
+                    @Override
                     public void presenceChanged(Presence presence) {
-                        people.add(new People("oi"));
-                        //((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
+                        Log.e(TAG, "The following presence has changed: " + presence.getFrom() + " :" + presence.getStatus());
+                        if (presence.getStatus().equals("Bored")) {
+                            people.add(new People(presence.getFrom(), presence.getStatus()));
+                        } else {
+                            for (People d : people) {
+                                if (d.getName().equals(presence.getFrom())) people.remove(d);
+                            }
+                        }
+                        ((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
                     }
                 });
+
                 ChatManager chatmanager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
                 chatmanager.addChatListener(new ChatManagerListener() {
                     @Override
@@ -247,14 +242,12 @@ public class BoredActivity extends AppCompatActivity {
                             public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
                                 Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
                                 if (message.getBody() != null) {
-                                    Log.e(TAG, "eba");
-                                    addItem(chat.getParticipant());
+                                    Log.e(TAG, "eba: " + message.getFrom());
                                 }
                             }
                         });
                     }
                 });
-
             dialog.dismiss();
         }
     }

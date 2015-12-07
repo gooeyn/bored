@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 
@@ -29,7 +30,8 @@ public class MyConnectionManager {
 
     private MyConnectionManager(){}
 
-    public static MyConnectionManager getInstance(){
+    public static MyConnectionManager getInstance()
+    {
         if(instance == null)
         {
             instance = new MyConnectionManager();
@@ -37,7 +39,8 @@ public class MyConnectionManager {
         return instance;
     }
 
-    public AbstractXMPPConnection getConnection() {
+    public AbstractXMPPConnection getConnection()
+    {
         return connection;
     }
 
@@ -45,26 +48,35 @@ public class MyConnectionManager {
     {
         InputStream ins = context.getResources().openRawResource(R.raw.keystore_bored);
         KeyStore ks = null;
-        try {
+
+        try
+        {
             ks = KeyStore.getInstance("BKS");
             ks.load(ins, "123".toCharArray());
             Log.e(TAG, "try ks" + ks.toString());
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Log.e(TAG, e.toString());
         }
+
         return ks;
     }
 
     public TrustManagerFactory getTrustManager(KeyStore ks)
     {
         TrustManagerFactory tmf = null;
-        try {
+
+        try
+        {
             tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ks);
-            Log.e(TAG, "try tmf" + tmf.toString());
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Log.e(TAG, e.toString());
         }
+
         return tmf;
     }
 
@@ -72,39 +84,75 @@ public class MyConnectionManager {
     {
         SSLContext ssl = null;
 
-        try {
+        try
+        {
             ssl = SSLContext.getInstance("TLS");
             ssl.init(null, tmf.getTrustManagers(), new SecureRandom());
-            Log.e(TAG, "try ssl" + ssl.toString());
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Log.e(TAG, e.toString());
         }
+
         return ssl;
     }
 
-    public void connect(){
-        //TRY TO CONNECT
-        try{
+    public void connect()
+    {
+        if(connection.isConnected()) return;
+
+        try
+        {
             connection.setPacketReplyTimeout(10000);
             connection.connect();
-            Log.e(TAG, "conectado: " + connection.isConnected());
-        } catch(Exception e)
+        }
+        catch(Exception e)
         {
             Log.e(TAG, e.toString());
         }
     }
 
-    public void login(){
-        try{
+    public void login()
+    {
+        if(connection.isAuthenticated()) return;
+
+        try
+        {
             connection.login("b", "b");
-            Log.e(TAG, "conectado to: " + connection.getUser());
-        } catch(Exception e)
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.toString());
+        }
+    }
+    public void bored()
+    {
+        try
+        {
+            Presence p = new Presence(Presence.Type.available, "Bored", 1, Presence.Mode.available);
+            connection.sendStanza(p);
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.toString());
+        }
+    }
+    public void notBored()
+    {
+        try
+        {
+            Presence p = new Presence(Presence.Type.available, "Not bored", 1, Presence.Mode.available);
+            connection.sendStanza(p);
+        }
+        catch(Exception e)
         {
             Log.e(TAG, e.toString());
         }
     }
     public void setConnectionConfiguration(Context context)
     {
+        if(connection != null) return;
+
         XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                 .setUsernameAndPassword("a", "a")
                 .setServiceName(serviceName)

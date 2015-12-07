@@ -123,6 +123,16 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void insertToDatabase(){
         class InsertTask extends AsyncTask<Integer, Void, Void> { //Create async task insert task
+            private ProgressDialog dialog;
+
+            public InsertTask(Activity activity)
+            {
+                this.dialog = new ProgressDialog(activity);
+                this.dialog.setTitle("Hello, it's me.");
+                this.dialog.setMessage("Soon enough you won't be bored anymore");
+                dialog.show();
+            }
+
             @Override
             protected Void doInBackground(Integer... params) { //insert in the background to database
                 try
@@ -131,10 +141,12 @@ public class LoginActivity extends AppCompatActivity {
                     MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
                     MyConnectionManager.getInstance().connect();
                     AccountManager accountManager = AccountManager.getInstance(MyConnectionManager.getInstance().getConnection());
-                    try {
+                    try
+                    {
                         accountManager.createAccount(hashData.get("facebook_id") + "new2", "smack");
                         Log.e(TAG, "TRYING TO CONNECT.");
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         Log.e(TAG, "TRYING TO CONNECT. " + e.toString());
                     }
@@ -149,12 +161,13 @@ public class LoginActivity extends AppCompatActivity {
             }
             protected void onPostExecute(Void v)
             {
+                dialog.dismiss();
                 Intent i = new Intent(LoginActivity.this, BoredActivity.class);
                 startActivity(i);
                 finish();
             }
         }
-        InsertTask task = new InsertTask(); //new insert task
+        InsertTask task = new InsertTask(LoginActivity.this); //new insert task
         task.execute(); //execute insert task
     }
 
