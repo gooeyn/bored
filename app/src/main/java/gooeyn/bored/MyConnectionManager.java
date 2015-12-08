@@ -8,6 +8,7 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -52,7 +53,7 @@ public class MyConnectionManager {
         try
         {
             ks = KeyStore.getInstance("BKS");
-            ks.load(ins, "123".toCharArray());
+            ks.load(ins, "abc".toCharArray());
             Log.e(TAG, "try ks" + ks.toString());
         }
         catch (Exception e)
@@ -112,13 +113,13 @@ public class MyConnectionManager {
         }
     }
 
-    public void login()
+    public void login(String user, String password)
     {
         if(connection.isAuthenticated()) return;
 
         try
         {
-            connection.login("b", "b");
+            connection.login(user, password);
         }
         catch(Exception e)
         {
@@ -170,5 +171,20 @@ public class MyConnectionManager {
         connection = new XMPPTCPConnection(config);
         SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
         SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
+    }
+
+    public void createAccount(String user, String pass)
+    {
+        AccountManager manager = AccountManager.getInstance(connection);
+        try
+        {
+            manager.createAccount(user, pass);
+        }
+        catch (Exception e)
+        {
+
+        }
+
+
     }
 }

@@ -59,6 +59,7 @@ public class BoredActivity extends AppCompatActivity {
     ArrayList<People> people = new ArrayList<>();
     PeopleAdapter adapter;
     ImageView navImageView;
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +74,7 @@ public class BoredActivity extends AppCompatActivity {
         }
         else
         {
+            intent = getIntent();
             getFacebookData();
         /* DECLARE ALL VARIABLES */
             navImageView = (ImageView) findViewById(R.id.imageViewDroid);
@@ -115,6 +117,7 @@ public class BoredActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     drawer.openDrawer(GravityCompat.START);
+                    LoginManager.getInstance().logOut();
                 }
             });
         }
@@ -203,7 +206,7 @@ public class BoredActivity extends AppCompatActivity {
         protected Boolean doInBackground(String... arg0) {
             MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
             MyConnectionManager.getInstance().connect();
-            MyConnectionManager.getInstance().login();
+            MyConnectionManager.getInstance().login(intent.getStringExtra("user"), intent.getStringExtra("user"));
             return true;
         }
 

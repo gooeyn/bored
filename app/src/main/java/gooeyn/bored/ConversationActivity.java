@@ -1,11 +1,11 @@
 package gooeyn.bored;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,6 +21,7 @@ public class ConversationActivity extends AppCompatActivity {
     private ListView listview;
     ArrayList<MyChat> myChat = new ArrayList<>();
     String TAG = "myshit";
+    ChatAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,50 +33,51 @@ public class ConversationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final String user = intent.getStringExtra("user");
         setTitle(user);
-        listview.setAdapter(new ChatAdapter(getApplicationContext(), myChat));
+        adapter = new ChatAdapter(getApplicationContext(), myChat);
+        listview.setAdapter(adapter);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String text = sendText.getText().toString();
                 sendText.setText("");
-                Message message = new Message(user, Message.Type.chat);
-                message.setFrom(connection.getUser());
-                message.setBody(text);
+                Message m = new Message(user, Message.Type.chat);
+                m.setFrom(connection.getUser());
+                m.setBody(text);
                 try {
-                    connection.sendStanza(message);
-                } catch(Exception e)
-                {
+                    connection.sendStanza(m);
+                    myChat.add(new MyChat("aff"));
+                    Activity activity = ConversationActivity.this;
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                } catch (Exception e) {
                     Log.e(TAG, e.toString());
                 }
-
-
-
-
-                ChatManager chatmanager = ChatManager.getInstanceFor(connection);
-                chatmanager.addChatListener(new ChatManagerListener() {
-                    @Override
-                    public void chatCreated(Chat chat, boolean createdLocally) {
-                        chat.addMessageListener(new ChatMessageListener() {
-                            @Override
-                            public void processMessage(Chat chat, Message message) {
-                                Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
-                                if (message.getBody() != null) {
-                                    Log.e(TAG, "eba");
-                                    addItem(message.getBody());
-                                }
-                            }
-                        });
-                    }
-                });
-                myChat.add(new MyChat(text));
-                listview.invalidateViews();
             }
         });
-    }
-
-    public void addItem(String message){
-        myChat.add(new MyChat(message));
-        Log.e(TAG, "n: " + myChat.size());
-        ((BaseAdapter) listview.getAdapter()).notifyDataSetChanged();
+        ChatManager chatmanager = ChatManager.getInstanceFor(connection);
+        chatmanager.addChatListener(new ChatManagerListener() {
+            @Override
+            public void chatCreated(Chat chat, boolean createdLocally) {
+                chat.addMessageListener(new ChatMessageListener() {
+                    @Override
+                    public void processMessage(Chat chat, Message message) {
+                        if (message.getBody() != null) {
+                            myChat.add(new MyChat("oi"));
+                            Activity activity = ConversationActivity.this;
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
     }
 }

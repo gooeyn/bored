@@ -143,14 +143,14 @@ public class LoginActivity extends AppCompatActivity {
                     AccountManager accountManager = AccountManager.getInstance(MyConnectionManager.getInstance().getConnection());
                     try
                     {
-                        accountManager.createAccount(hashData.get("facebook_id") + "new2", "smack");
+                        accountManager.createAccount(hashData.get("facebook_id"), "smack");
                         Log.e(TAG, "TRYING TO CONNECT.");
                     }
                     catch (Exception e)
                     {
                         Log.e(TAG, "TRYING TO CONNECT. " + e.toString());
                     }
-                    //MyConnectionManager.getInstance().createAccount(hashData.get("facebook_id" + "a"), "smack");
+                    MyConnectionManager.getInstance().login(hashData.get("facebook_id"), "smack");
                 }
                 catch (Exception e) //catches IO exception
                 {
@@ -163,6 +163,8 @@ public class LoginActivity extends AppCompatActivity {
             {
                 dialog.dismiss();
                 Intent i = new Intent(LoginActivity.this, BoredActivity.class);
+                i.putExtra("user", hashData.get("facebook_id") + "/android");
+                i.putExtra("pass", "android");
                 startActivity(i);
                 finish();
             }
