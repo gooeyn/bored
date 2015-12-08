@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ffffff"
-    tools:context="gooeyn.bored.BoredActivity">
-    <include
-        layout="@layout/header_bored"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/include" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:fitsSystemWindows="true"
+    tools:context="gooeyn.bored.BoredActivity"
+    android:background="#ffffff">
 
-    <include
-        layout="@layout/content_bored"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/include2"
-        android:layout_below="@+id/include" />
-
+    <android.support.design.widget.AppBarLayout android:layout_height="wrap_content"
+        android:layout_width="match_parent" android:theme="@style/AppTheme.AppBarOverlay">
+    </android.support.design.widget.AppBarLayout>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include
+            layout="@layout/header_bored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/include" />
+        <include
+            layout="@layout/content_bored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/include2"
+            android:layout_below="@+id/include" />
+    </RelativeLayout>
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="16dp"
+        android:id="@+id/fab"
         android:visibility="invisible"
-        android:src="@drawable/ic_exit_to_app_white_24dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_alignBottom="@+id/include2"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="20dp" />
-</RelativeLayout>
+        app:layout_anchorGravity="bottom|right|end" />
+</android.support.design.widget.CoordinatorLayout>

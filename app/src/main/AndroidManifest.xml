@@ -41,7 +41,7 @@
 
         <activity android:name=".BoredActivity"
             android:icon="@drawable/ic_chat_bubble_outline_black_24dp"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

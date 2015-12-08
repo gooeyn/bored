@@ -8,6 +8,7 @@
         android:layout_height="match_parent"
         android:id="@+id/peopleBored"
         android:visibility="invisible"
+        android:transcriptMode="alwaysScroll"
         android:layout_centerHorizontal="true" />
 
     <Button

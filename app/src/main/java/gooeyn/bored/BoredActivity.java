@@ -16,6 +16,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,7 +25,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -39,7 +40,6 @@ import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,14 +56,14 @@ public class BoredActivity extends AppCompatActivity {
     TextView profileTxtView;
     ListView events_list;
     boolean isRegistered = false;
-
     ArrayList<People> people = new ArrayList<>();
-
+    PeopleAdapter adapter;
+    ImageView navImageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        setContentView(R.layout.activity_bored);
+        setContentView(R.layout.activity_bored_nav);
 
         /* CHECK IF USER IS LOGGED IN OR NOT */
         if (!isLoggedIn()) { //IF USER IS NOT LOGGED IN
@@ -71,16 +71,20 @@ public class BoredActivity extends AppCompatActivity {
             startActivity(i); //START LOGIN ACTIVITY
             finish(); //FINISHES MAIN ACTIVITY
         }
-        else {
+        else
+        {
             getFacebookData();
         /* DECLARE ALL VARIABLES */
+            navImageView = (ImageView) findViewById(R.id.imageViewDroid);
             profileImgView = (ImageView) findViewById(R.id.profileImgView);
             profileTxtView = (TextView) findViewById(R.id.profileTxtView);
             events_list = (ListView) findViewById(R.id.peopleBored);
+            events_list.setTranscriptMode(2);
             final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
             final Button btn = (Button) findViewById(R.id.buttonBored);
             final TextView txt = (TextView) findViewById(R.id.textPress);
-            events_list.setAdapter(new PeopleAdapter(BoredActivity.this, people));
+            adapter = new PeopleAdapter(this, people);
+            events_list.setAdapter(adapter);
         /* SET ALL ON CLICK LISTENERS */
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -102,6 +106,15 @@ public class BoredActivity extends AppCompatActivity {
                     fab.setVisibility(View.INVISIBLE);
                     txt.setVisibility(View.VISIBLE);
                     isRegistered = false;
+                }
+            });
+
+            final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+            profileImgView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawer.openDrawer(GravityCompat.START);
                 }
             });
         }
@@ -149,7 +162,7 @@ public class BoredActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.new_game:
-
+                adapter.notifyDataSetChanged();
                 return true;
             case R.id.help:
                 LoginManager.getInstance().logOut();
@@ -176,13 +189,14 @@ public class BoredActivity extends AppCompatActivity {
      */
     public class ConnectAndLoad extends AsyncTask<String, Integer, Boolean> {
         private ProgressDialog dialog;
-
+        private Activity activity;
         public ConnectAndLoad(Activity activity)
         {
             this.dialog = new ProgressDialog(activity);
             this.dialog.setTitle("Hello, it's me.");
             this.dialog.setMessage("Loading bored people..");
             dialog.show();
+            this.activity = activity;
         }
 
         @Override
@@ -208,50 +222,56 @@ public class BoredActivity extends AppCompatActivity {
                 }
 
 
-                roster.addRosterListener(new RosterListener() {
-                    public void entriesDeleted(Collection<String> addresses) {
-                    }
+            roster.addRosterListener(new RosterListener() {
+                public void entriesDeleted(Collection<String> addresses) {
+                }
 
-                    public void entriesUpdated(Collection<String> addresses) {
-                    }
+                public void entriesUpdated(Collection<String> addresses) {
+                }
 
 
-                    public void entriesAdded(Collection<String> addresses) {
-                    }
+                public void entriesAdded(Collection<String> addresses) {
+                }
 
-                    @Override
-                    public void presenceChanged(Presence presence) {
-                        Log.e(TAG, "The following presence has changed: " + presence.getFrom() + " :" + presence.getStatus());
-                        if (presence.getStatus().equals("Bored")) {
-                            people.add(new People(presence.getFrom(), presence.getStatus()));
-                        } else {
-                            for (People d : people) {
-                                if (d.getName().equals(presence.getFrom())) people.remove(d);
-                            }
+                @Override
+                public void presenceChanged(Presence presence) {
+                    Log.e(TAG, "The following presence has changed: " + presence.getFrom() + " :" + presence.getStatus());
+                    if (presence.getStatus() == null) return;
+                    if (presence.getStatus().equals("Bored")) {
+                        people.add(new People(presence.getFrom(), presence.getStatus()));
+                    } else {
+                        for (People d : people) {
+                            if (d.getName().equals(presence.getFrom())) people.remove(d);
                         }
-                        ((BaseAdapter) events_list.getAdapter()).notifyDataSetChanged();
                     }
+
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
                 });
 
                 ChatManager chatmanager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
                 chatmanager.addChatListener(new ChatManagerListener() {
-                    @Override
-                    public void chatCreated(org.jivesoftware.smack.chat.Chat chat, boolean createdLocally) {
-                        chat.addMessageListener(new ChatMessageListener() {
-                            @Override
-                            public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
-                                Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
-                                if (message.getBody() != null) {
-                                    Log.e(TAG, "eba: " + message.getFrom());
-                                }
+                @Override
+                public void chatCreated(org.jivesoftware.smack.chat.Chat chat, boolean createdLocally) {
+                    chat.addMessageListener(new ChatMessageListener() {
+                        @Override
+                        public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
+                            Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
+                            if (message.getBody() != null) {
+                                Log.e(TAG, "eba: " + message.getFrom());
                             }
-                        });
-                    }
-                });
+                        }
+                    });
+                }
+            });
             dialog.dismiss();
         }
     }
-
     /*
     THIS ASYNCTASK DOWNLOADS THE GIVEN IMAGE IN BACKGROUD AND THEN SETS
     IT TO AN IMAGE VIEW.
@@ -272,7 +292,7 @@ public class BoredActivity extends AppCompatActivity {
                 Bitmap bMap = BitmapFactory.decodeStream(buf);
                 in.close();
                 buf.close();
-                Bitmap bMap2 = getCroppedBitmap(bMap, 300);
+                Bitmap bMap2 = getRoundedBitmap(bMap, 300);
                 return new BitmapDrawable(getApplicationContext().getResources(), bMap2);
             }
             catch (Exception e)
@@ -286,15 +306,16 @@ public class BoredActivity extends AppCompatActivity {
         @SuppressWarnings("deprecation")
         protected void onPostExecute(Drawable image)
         {
-
             if(Build.VERSION.SDK_INT >= 16) {
                 profileImgView.setBackground(image);
+                //navImageView.setBackground(image);
             } else {
                 profileImgView.setBackgroundDrawable(image);
+                //navImageView.setBackgroundDrawable(image);
             }
         }
 
-        public Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
+        public Bitmap getRoundedBitmap(Bitmap bmp, int radius) {
             Bitmap sbmp;
             if(bmp.getWidth() != radius || bmp.getHeight() != radius)
                 sbmp = Bitmap.createScaledBitmap(bmp, radius, radius, false);

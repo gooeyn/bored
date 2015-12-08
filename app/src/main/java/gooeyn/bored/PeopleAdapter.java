@@ -1,79 +1,54 @@
+
+
+
+
+
+
 package gooeyn.bored;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.ArrayAdapter;
+        import android.widget.TextView;
+        import android.widget.Toast;
 
-import java.util.ArrayList;
+        import java.util.ArrayList;
 
-public class PeopleAdapter extends BaseAdapter {
-    private static LayoutInflater inflater=null;
+public class PeopleAdapter extends ArrayAdapter<People> {
     private ArrayList<People> events_list = new ArrayList<>();
     Context context;
-    public PeopleAdapter(FragmentActivity mainActivity, ArrayList<People> events_list)
-    {
-        this.events_list = events_list;
-        context = mainActivity;
-        inflater = ( LayoutInflater )context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    @Override
-    public int getCount() {
-        // TODO Auto-generated method stub
-        return events_list.size();
-    }
-    @Override
-    public Object getItem(int position) {
-        // TODO Auto-generated method stub
-        return position;
-    }
-    @Override
-    public long getItemId(int position) {
-        // TODO Auto-generated method stub
-        return position;
-    }
-
-    public class Holder
-    {
-        TextView tv;
-        ImageView img;
-        TextView status;
+    public PeopleAdapter(Context context, ArrayList<People> users) {
+        super(context, 0, users);
+        this.context = context;
+        this.events_list = users;
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        // TODO Auto-generated method stub
-        Holder holder=new Holder();
-        View rowView;
-        if(convertView == null) {
-            rowView = inflater.inflate(R.layout.people_list, null);
+        People user = getItem(position);
 
-            holder.tv = (TextView) rowView.findViewById(R.id.textView1);
-            holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
-            holder.status = (TextView) rowView.findViewById(R.id.status);
-
-            holder.tv.setText(events_list.get(position).name);
-            holder.status.setText(events_list.get(position).status);
-
-            rowView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(context, ConversationActivity.class);
-                    i.putExtra("user", events_list.get(position).name);
-                    context.startActivity(i);
-                }
-            });
-        } else {
-            return convertView;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.people_list, parent, false);
         }
-        return rowView;
+
+        TextView tvName = (TextView) convertView.findViewById(R.id.name);
+        TextView tvStatus = (TextView) convertView.findViewById(R.id.status);
+        tvName.setText(user.name);
+        tvStatus.setText(user.status);
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(context, ConversationActivity.class);
+                i.putExtra("user", events_list.get(position).name);
+                context.startActivity(i);
+            }
+        });
+
+        return convertView;
     }
 }
