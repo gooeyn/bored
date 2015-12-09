@@ -6,6 +6,7 @@ import android.util.Log;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
@@ -185,6 +186,39 @@ public class MyConnectionManager {
 
         }
 
+
+    }
+
+    public void addFriend(String friend)
+    {
+        if(connection == null) return;
+
+        Roster roster = Roster.getInstanceFor(connection);
+        try
+        {
+            roster.createEntry(friend + "@" + host, friend + "@54.84.237.97", null);
+            Log.e(TAG, "foi criado: ");
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "deu errado: " + e.toString());
+        }
+
+    }
+    public void addFriend2(String friend)
+    {
+        if(connection == null) return;
+
+        Roster roster = Roster.getInstanceFor(connection);
+        try
+        {
+            roster.createEntry(friend, friend, null);
+            Log.e(TAG, "foi criado: " + friend);
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "deu errado: " + e.toString());
+        }
 
     }
 }

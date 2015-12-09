@@ -133,14 +133,17 @@ public class BoredActivity extends AppCompatActivity {
                     public void onCompleted(JSONObject object, GraphResponse response) { //on completed request
                         try {
                             profileTxtView.setText(object.getString("name"));
+                            Log.e(TAG, object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
+                            Log.e(TAG, object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
+                            MyConnectionManager.getInstance().addFriend(object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
                             new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
                         } catch (JSONException e) {
-                            Log.e(TAG, e.toString());
+                            Log.e(TAG, "onCompleted: " + e.toString());
                         }
                     }
                 });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "picture.type(large),name,cover");
+        parameters.putString("fields", "picture.type(large),name,cover,friends");
         request.setParameters(parameters);
         request.executeAsync();
     }
@@ -226,14 +229,24 @@ public class BoredActivity extends AppCompatActivity {
 
 
             roster.addRosterListener(new RosterListener() {
+                @Override
                 public void entriesDeleted(Collection<String> addresses) {
+                    Log.e(TAG, "entriesDeleted");
                 }
 
+                @Override
                 public void entriesUpdated(Collection<String> addresses) {
+                    Log.e(TAG, "entriesUpdated");
                 }
 
-
+                @Override
                 public void entriesAdded(Collection<String> addresses) {
+                    Log.e(TAG, "entriesAdded");
+                    for (String address : addresses) {
+                        MyConnectionManager.getInstance().addFriend2(address);
+                        Log.e(TAG, "entrisAdded: " + address);
+                    }
+
                 }
 
                 @Override
