@@ -60,6 +60,7 @@ public class BoredActivity extends AppCompatActivity {
     PeopleAdapter adapter;
     ImageView navImageView;
     Intent intent;
+    String host = "54.84.237.97";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +136,7 @@ public class BoredActivity extends AppCompatActivity {
                             profileTxtView.setText(object.getString("name"));
                             Log.e(TAG, object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
                             Log.e(TAG, object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
-                            MyConnectionManager.getInstance().addFriend(object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
+                            MyConnectionManager.getInstance().addFriend(object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id") + "@" + host);
                             new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
                         } catch (JSONException e) {
                             Log.e(TAG, "onCompleted: " + e.toString());
@@ -243,7 +244,7 @@ public class BoredActivity extends AppCompatActivity {
                 public void entriesAdded(Collection<String> addresses) {
                     Log.e(TAG, "entriesAdded");
                     for (String address : addresses) {
-                        MyConnectionManager.getInstance().addFriend2(address);
+                        MyConnectionManager.getInstance().addFriend(address);
                         Log.e(TAG, "entrisAdded: " + address);
                     }
 

@@ -26,7 +26,7 @@ public class MyConnectionManager {
     String host = "54.84.237.97";
     int port = 5225;
     String resource = "Android";
-    String TAG = "myshit";
+    String TAG = "myshit/MyConnectionManager";
 
     private static MyConnectionManager instance = null;
 
@@ -46,8 +46,9 @@ public class MyConnectionManager {
         return connection;
     }
 
-    public KeyStore getKeyStore(Context context)
+    public KeyStore generateKeyStore(Context context)
     {
+        Log.v(TAG, "Generating key store..");
         InputStream ins = context.getResources().openRawResource(R.raw.keystore_bored);
         KeyStore ks = null;
 
@@ -55,18 +56,18 @@ public class MyConnectionManager {
         {
             ks = KeyStore.getInstance("BKS");
             ks.load(ins, "abc".toCharArray());
-            Log.e(TAG, "try ks" + ks.toString());
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error generating key store: " + e.toString());
         }
 
         return ks;
     }
 
-    public TrustManagerFactory getTrustManager(KeyStore ks)
+    public TrustManagerFactory generateTrustManagerFactory(KeyStore ks)
     {
+        Log.v(TAG, "Generating trust manager factory..");
         TrustManagerFactory tmf = null;
 
         try
@@ -76,14 +77,15 @@ public class MyConnectionManager {
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error generating trust manager factory: " + e.toString());
         }
 
         return tmf;
     }
 
-    public SSLContext getSSLContext(TrustManagerFactory tmf)
+    public SSLContext generateSSLContext(TrustManagerFactory tmf)
     {
+        Log.v(TAG, "Generating SSL context..");
         SSLContext ssl = null;
 
         try
@@ -93,7 +95,7 @@ public class MyConnectionManager {
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error generating SSL context: " + e.toString());
         }
 
         return ssl;
@@ -101,6 +103,7 @@ public class MyConnectionManager {
 
     public void connect()
     {
+        Log.v(TAG, "Attempting to connect..");
         if(connection.isConnected()) return;
 
         try
@@ -110,12 +113,13 @@ public class MyConnectionManager {
         }
         catch(Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error connecting: " + e.toString());
         }
     }
 
     public void login(String user, String password)
     {
+        Log.v(TAG, "Attempting to login..");
         if(connection.isAuthenticated()) return;
 
         try
@@ -124,11 +128,12 @@ public class MyConnectionManager {
         }
         catch(Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error loging in: " + e.toString());
         }
     }
     public void bored()
     {
+        Log.v(TAG, "Setting status to BORED..");
         try
         {
             Presence p = new Presence(Presence.Type.available, "Bored", 1, Presence.Mode.available);
@@ -136,11 +141,12 @@ public class MyConnectionManager {
         }
         catch(Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error setting status to BORED: " + e.toString());
         }
     }
     public void notBored()
     {
+        Log.v(TAG, "Setting status to NOT BORED..");
         try
         {
             Presence p = new Presence(Presence.Type.available, "Not bored", 1, Presence.Mode.available);
@@ -148,20 +154,20 @@ public class MyConnectionManager {
         }
         catch(Exception e)
         {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error setting status to NOT BORED: " + e.toString());
         }
     }
     public void setConnectionConfiguration(Context context)
     {
+        Log.v(TAG, "Setting connection configuration..");
         if(connection != null) return;
 
         XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword("a", "a")
                 .setServiceName(serviceName)
                 .setHost(host)
                 .setResource(resource)
                 .setPort(port)
-                .setCustomSSLContext(getSSLContext(getTrustManager(getKeyStore(context))))
+                .setCustomSSLContext(generateSSLContext(generateTrustManagerFactory(generateKeyStore(context))))
                 .setHostnameVerifier(new HostnameVerifier() {
                     @Override
                     public boolean verify(String hostname, SSLSession session) {
@@ -176,48 +182,33 @@ public class MyConnectionManager {
 
     public void createAccount(String user, String pass)
     {
-        AccountManager manager = AccountManager.getInstance(connection);
-        try
-        {
-            manager.createAccount(user, pass);
-        }
-        catch (Exception e)
-        {
-
-        }
-
-
-    }
-
-    public void addFriend(String friend)
-    {
+        Log.v(TAG, "Creating account..");
         if(connection == null) return;
 
-        Roster roster = Roster.getInstanceFor(connection);
+        AccountManager accountManager = AccountManager.getInstance(connection);
         try
         {
-            roster.createEntry(friend + "@" + host, friend + "@54.84.237.97", null);
-            Log.e(TAG, "foi criado: ");
+            accountManager.createAccount(user, pass);
         }
         catch (Exception e)
         {
-            Log.e(TAG, "deu errado: " + e.toString());
+            Log.e(TAG, "Error creating account: " + e.toString());
         }
-
     }
-    public void addFriend2(String friend)
+    public void addFriend(String friend)
     {
+        Log.v(TAG, "Adding friend..");
         if(connection == null) return;
 
         Roster roster = Roster.getInstanceFor(connection);
         try
         {
             roster.createEntry(friend, friend, null);
-            Log.e(TAG, "foi criado: " + friend);
+            Log.e(TAG, "Friend added: " + friend);
         }
         catch (Exception e)
         {
-            Log.e(TAG, "deu errado: " + e.toString());
+            Log.e(TAG, "Error adding friend: " + e.toString());
         }
 
     }

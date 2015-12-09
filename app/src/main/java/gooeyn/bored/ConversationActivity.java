@@ -18,7 +18,6 @@ import org.jivesoftware.smack.packet.Message;
 import java.util.ArrayList;
 
 public class ConversationActivity extends AppCompatActivity {
-    private ListView listview;
     ArrayList<MyChat> myChat = new ArrayList<>();
     String TAG = "myshit";
     ChatAdapter adapter;
@@ -28,7 +27,7 @@ public class ConversationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_conversation);
         final AbstractXMPPConnection connection = MyConnectionManager.getInstance().getConnection();
         Button sendButton = (Button) findViewById(R.id.buttonSend);
-        listview = (ListView) this.findViewById(R.id.listMessages);
+        ListView listview = (ListView) this.findViewById(R.id.listMessages);
         final EditText sendText = (EditText) findViewById(R.id.editTextSend);
         Intent intent = getIntent();
         final String user = intent.getStringExtra("user");
@@ -58,19 +57,27 @@ public class ConversationActivity extends AppCompatActivity {
                 }
             }
         });
+
         ChatManager chatmanager = ChatManager.getInstanceFor(connection);
-        chatmanager.addChatListener(new ChatManagerListener() {
+
+        chatmanager.addChatListener(new ChatManagerListener()
+        {
             @Override
-            public void chatCreated(Chat chat, boolean createdLocally) {
-                chat.addMessageListener(new ChatMessageListener() {
+            public void chatCreated(Chat chat, boolean createdLocally)
+            {
+                chat.addMessageListener(new ChatMessageListener()
+                {
                     @Override
-                    public void processMessage(Chat chat, Message message) {
-                        if (message.getBody() != null) {
+                    public void processMessage(Chat chat, Message message)
+                    {
+                        if (message.getBody() != null)
+                        {
                             myChat.add(new MyChat("oi"));
                             Activity activity = ConversationActivity.this;
                             activity.runOnUiThread(new Runnable() {
                                 @Override
-                                public void run() {
+                                public void run()
+                                {
                                     adapter.notifyDataSetChanged();
                                 }
                             });
