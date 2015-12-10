@@ -40,6 +40,7 @@ import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +61,6 @@ public class BoredActivity extends AppCompatActivity {
     PeopleAdapter adapter;
     ImageView navImageView;
     Intent intent;
-    String host = "54.84.237.97";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -138,8 +138,6 @@ public class BoredActivity extends AppCompatActivity {
                         {
                             new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
                             profileTxtView.setText(object.getString("name"));
-                            Log.v(TAG, "Nome: " + object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name") + ". ID: " + object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
-                            MyConnectionManager.getInstance().addFriend(object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id") + "@" + host);
                         }
                         catch (JSONException e)
                         {
@@ -234,6 +232,26 @@ public class BoredActivity extends AppCompatActivity {
                     Log.e(TAG, "reload");
                 }
 
+            Collection<RosterEntry> entries = roster.getEntries();
+
+            for (RosterEntry entry : entries) {
+                Presence presence = roster.getPresence(entry.getUser());
+                if(presence != null)
+                {
+                    if(presence.getStatus() != null)
+                    {
+                        if (presence.getStatus().equals("Bored")) {
+                            if(isUnique(people, presence.getFrom()))
+                            {
+                                people.add(new People(presence.getFrom(), "roster entry"));
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            adapter.notifyDataSetChanged();
 
             roster.addRosterListener(new RosterListener() {
                 @Override
@@ -259,12 +277,28 @@ public class BoredActivity extends AppCompatActivity {
                 @Override
                 public void presenceChanged(Presence presence) {
                     Log.v(TAG, "The following presence has changed: " + presence.getFrom() + " :" + presence.getStatus());
-                    if (presence.getStatus() == null) return;
-                    if (presence.getStatus().equals("Bored")) {
-                        people.add(new People(presence.getFrom(), presence.getStatus()));
+
+                    if (presence.getStatus() == null)
+                    {
+                        for (People d : people)
+                        {
+                            if (d.getName().equals(presence.getFrom()))
+                            {
+                                people.remove(d);
+                            }
+                        }
+                    } else if (presence.getStatus().equals("Bored")) {
+                        if(isUnique(people, presence.getFrom()))
+                        {
+                            Log.v(TAG, "presence changed getFrom " + presence.getFrom());
+                            people.add(new People(presence.getFrom(), "presence changed"));
+                        }
                     } else {
                         for (People d : people) {
-                            if (d.getName().equals(presence.getFrom())) people.remove(d);
+                            if (d.getName().equals(presence.getFrom()))
+                            {
+                                people.remove(d);
+                            }
                         }
                     }
 
@@ -294,6 +328,15 @@ public class BoredActivity extends AppCompatActivity {
             });
             dialog.dismiss();
         }
+    }
+
+    public Boolean isUnique(ArrayList<People> people, String user)
+    {
+        for (People d : people) {
+            if (d.getName().equals(user)) return false;
+        }
+
+        return true;
     }
     /*
     THIS ASYNCTASK DOWNLOADS THE GIVEN IMAGE IN BACKGROUD AND THEN SETS

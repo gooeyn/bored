@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     LoginButton loginButton;
     String TAG = "myshit/LoginActivity";
     String server = "http://ec2-54-84-237-97.compute-1.amazonaws.com/insert.php";
-
+    String host = "54.84.237.97";
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -100,6 +100,9 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 hashData.put("gender", "f");
                             }
+                            hashData.put("friend_name", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
+                            hashData.put("friend_id", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
+
                             insertToDatabase(); //insert all the data to the database
                         } catch (JSONException e) {
                             Log.e(TAG, e.toString());
@@ -109,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "name,first_name,last_name,gender,id");
+        parameters.putString("fields", "name,first_name,last_name,gender,id, friends");
         request.setParameters(parameters);
         request.executeAsync();
     }
@@ -152,9 +155,18 @@ public class LoginActivity extends AppCompatActivity {
                 try
                 {
                     insert(); //insert function is called
+
                     MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
                     MyConnectionManager.getInstance().connect();
-                    MyConnectionManager.getInstance().createAccount(hashData.get("facebook_id"), "smack");
+
+                    boolean newAccount = MyConnectionManager.getInstance().createAccount(hashData.get("facebook_id"), "smack");
+                    MyConnectionManager.getInstance().login();
+
+                    if(newAccount)
+                    {
+                        Log.v(TAG, "Nome: " + hashData.get("friend_name") + ". ID: " + hashData.get("friend_id"));
+                        MyConnectionManager.getInstance().addFriend(hashData.get("friend_id") + "@" + host);
+                    }
                 }
                 catch (Exception e) //catches IO exception
                 {

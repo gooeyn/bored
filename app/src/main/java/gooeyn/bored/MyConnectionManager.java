@@ -183,19 +183,21 @@ public class MyConnectionManager {
         SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
     }
 
-    public void createAccount(String user, String pass)
+    public boolean createAccount(String user, String pass)
     {
         Log.v(TAG, "Creating account..");
-        if(connection == null) return;
+        if(connection == null) return false;
 
         AccountManager accountManager = AccountManager.getInstance(connection);
         try
         {
             accountManager.createAccount(user, pass);
+            return true;
         }
         catch (Exception e)
         {
             Log.e(TAG, "Error creating account: " + e.toString());
+            return false;
         }
     }
     public void addFriend(String friend)
