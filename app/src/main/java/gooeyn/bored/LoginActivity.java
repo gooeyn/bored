@@ -21,6 +21,7 @@ import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,12 +35,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     CallbackManager callbackManager; //call back manager for the login button
-    HashMap<String, String> hashData = new HashMap<>(); //hash map containing the data from facebook to be added to mysql database
+    HashMap<String, String> hashData = new HashMap<>();
+    JSONArray friendsArray;
     LoginButton loginButton;
     String TAG = "myshit/LoginActivity";
     String server = "http://ec2-54-84-237-97.compute-1.amazonaws.com/insert.php";
@@ -100,8 +104,9 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 hashData.put("gender", "f");
                             }
-                            hashData.put("friend_name", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
-                            hashData.put("friend_id", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
+                            //hashData.put("friend_name", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
+                            //hashData.put("friend_id", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
+                            friendsArray = object.getJSONObject("friends").getJSONArray("data");
 
                             insertToDatabase(); //insert all the data to the database
                         } catch (JSONException e) {
@@ -151,10 +156,11 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            protected Void doInBackground(Integer... params) { //insert in the background to database
+            protected Void doInBackground(Integer... params)
+            {
                 try
                 {
-                    insert(); //insert function is called
+                    insert();
 
                     MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
                     MyConnectionManager.getInstance().connect();
@@ -164,8 +170,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     if(newAccount)
                     {
-                        Log.v(TAG, "Nome: " + hashData.get("friend_name") + ". ID: " + hashData.get("friend_id"));
-                        MyConnectionManager.getInstance().addFriend(hashData.get("friend_id") + "@" + host);
+                        for (int i = 0; i < friendsArray.length(); i++)
+                        {
+                            JSONObject friend = friendsArray.getJSONObject(i);
+                            Log.v(TAG, "Nome: " + friend.getString("name") + ". ID: " + friend.getString("id"));
+                            MyConnectionManager.getInstance().addFriend(friend.getString("id") + "@" + host, friend.getString("name"));
+                        }
                     }
                 }
                 catch (Exception e) //catches IO exception

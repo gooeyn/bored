@@ -2,6 +2,7 @@ package gooeyn.bored;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +30,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
@@ -61,6 +63,7 @@ public class BoredActivity extends AppCompatActivity {
     PeopleAdapter adapter;
     ImageView navImageView;
     Intent intent;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -87,8 +90,8 @@ public class BoredActivity extends AppCompatActivity {
             final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
             final Button btn = (Button) findViewById(R.id.buttonBored);
             final TextView txt = (TextView) findViewById(R.id.textPress);
-
-            adapter = new PeopleAdapter(this, people);
+            context = this;
+            adapter = new PeopleAdapter(context, people);
             events_list.setAdapter(adapter);
         /* SET ALL ON CLICK LISTENERS */
             btn.setOnClickListener(new View.OnClickListener() {
@@ -268,7 +271,7 @@ public class BoredActivity extends AppCompatActivity {
                 public void entriesAdded(Collection<String> addresses) {
                     Log.v(TAG, "entriesAdded");
                     for (String address : addresses) {
-                        MyConnectionManager.getInstance().addFriend(address);
+                        MyConnectionManager.getInstance().addFriend(address, address + "roster");
                         Log.v(TAG, "entrisAdded: " + address);
                     }
 
@@ -310,7 +313,6 @@ public class BoredActivity extends AppCompatActivity {
                     });
                 }
                 });
-
                 ChatManager chatmanager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
                 chatmanager.addChatListener(new ChatManagerListener() {
                 @Override
@@ -321,6 +323,7 @@ public class BoredActivity extends AppCompatActivity {
                             Log.v(TAG, chat.getParticipant() + ". m: " + message.getBody());
                             if (message.getBody() != null) {
                                 Log.v(TAG, "eba: " + message.getFrom());
+                                Toast.makeText(context, "You got a message from " + message.getFrom(), Toast.LENGTH_LONG).show();
                             }
                         }
                     });

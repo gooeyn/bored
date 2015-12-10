@@ -44,7 +44,7 @@ public class ConversationActivity extends AppCompatActivity {
                 m.setBody(text);
                 try {
                     connection.sendStanza(m);
-                    myChat.add(new MyChat("aff"));
+                    myChat.add(new MyChat(text));
                     Activity activity = ConversationActivity.this;
                     activity.runOnUiThread(new Runnable() {
                         @Override
@@ -72,7 +72,7 @@ public class ConversationActivity extends AppCompatActivity {
                     {
                         if (message.getBody() != null)
                         {
-                            myChat.add(new MyChat("oi"));
+                            myChat.add(new MyChat(message.getBody()));
                             Activity activity = ConversationActivity.this;
                             activity.runOnUiThread(new Runnable() {
                                 @Override

@@ -134,6 +134,7 @@ public class MyConnectionManager {
             Log.e(TAG, "Error loging in: " + e.toString());
         }
     }
+
     public void bored()
     {
         Log.v(TAG, "Setting status to BORED..");
@@ -147,6 +148,7 @@ public class MyConnectionManager {
             Log.e(TAG, "Error setting status to BORED: " + e.toString());
         }
     }
+
     public void notBored()
     {
         Log.v(TAG, "Setting status to NOT BORED..");
@@ -160,6 +162,7 @@ public class MyConnectionManager {
             Log.e(TAG, "Error setting status to NOT BORED: " + e.toString());
         }
     }
+
     public void setConnectionConfiguration(Context context)
     {
         Log.v(TAG, "Setting connection configuration..");
@@ -200,7 +203,8 @@ public class MyConnectionManager {
             return false;
         }
     }
-    public void addFriend(String friend)
+
+    public void addFriend(String user, String nickname)
     {
         Log.v(TAG, "Adding friend..");
         if(connection == null) return;
@@ -208,8 +212,8 @@ public class MyConnectionManager {
         Roster roster = Roster.getInstanceFor(connection);
         try
         {
-            roster.createEntry(friend, friend, null);
-            Log.v(TAG, "Friend added: " + friend);
+            roster.createEntry(user, nickname, null);
+            Log.v(TAG, "Friend added: " + nickname);
         }
         catch (Exception e)
         {
