@@ -61,8 +61,10 @@ public class BoredActivity extends AppCompatActivity {
     ImageView navImageView;
     Intent intent;
     String host = "54.84.237.97";
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_bored_nav);
@@ -73,7 +75,7 @@ public class BoredActivity extends AppCompatActivity {
             startActivity(i); //START LOGIN ACTIVITY
             finish(); //FINISHES MAIN ACTIVITY
         }
-        else
+        else //IF USER IS LOGGED IN
         {
             intent = getIntent();
             getFacebookData();
@@ -82,10 +84,10 @@ public class BoredActivity extends AppCompatActivity {
             profileImgView = (ImageView) findViewById(R.id.profileImgView);
             profileTxtView = (TextView) findViewById(R.id.profileTxtView);
             events_list = (ListView) findViewById(R.id.peopleBored);
-            events_list.setTranscriptMode(2);
             final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
             final Button btn = (Button) findViewById(R.id.buttonBored);
             final TextView txt = (TextView) findViewById(R.id.textPress);
+
             adapter = new PeopleAdapter(this, people);
             events_list.setAdapter(adapter);
         /* SET ALL ON CLICK LISTENERS */
@@ -111,9 +113,7 @@ public class BoredActivity extends AppCompatActivity {
                     isRegistered = false;
                 }
             });
-
             final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
             profileImgView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -127,19 +127,23 @@ public class BoredActivity extends AppCompatActivity {
     public void getFacebookData()
     {
         AccessToken accessToken = AccessToken.getCurrentAccessToken(); // get current access token
-        GraphRequest request = GraphRequest.newMeRequest( //make graph request for facebook data
-                accessToken,
-                new GraphRequest.GraphJSONObjectCallback() { //callback from graph request
+
+        GraphRequest request = GraphRequest.newMeRequest(accessToken,
+                new GraphRequest.GraphJSONObjectCallback()
+                {
                     @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) { //on completed request
-                        try {
-                            profileTxtView.setText(object.getString("name"));
-                            Log.e(TAG, object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
-                            Log.e(TAG, object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
-                            MyConnectionManager.getInstance().addFriend(object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id") + "@" + host);
+                    public void onCompleted(JSONObject object, GraphResponse response)
+                    {
+                        try
+                        {
                             new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
-                        } catch (JSONException e) {
-                            Log.e(TAG, "onCompleted: " + e.toString());
+                            profileTxtView.setText(object.getString("name"));
+                            Log.v(TAG, "Nome: " + object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name") + ". ID: " + object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
+                            MyConnectionManager.getInstance().addFriend(object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id") + "@" + host);
+                        }
+                        catch (JSONException e)
+                        {
+                            Log.e(TAG, "Error on completed Graph request: " + e.toString());
                         }
                     }
                 });
@@ -150,14 +154,16 @@ public class BoredActivity extends AppCompatActivity {
     }
 
     //METHOD TO CHECK IF USER IS LOGGED IN
-    public boolean isLoggedIn() {
+    public boolean isLoggedIn()
+    {
         AccessToken accessToken = AccessToken.getCurrentAccessToken(); //GET THE CURRENT ACCESS TOKEN OF USER
         return accessToken != null; //IF THE ACCESS TOKEN IS NULL, RETURN FALSE. OTHERWISE RETURN TRUE.
     }
 
     // CREATE OPTIONS MENU
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.bored_menu, menu);
         return true;
@@ -210,7 +216,7 @@ public class BoredActivity extends AppCompatActivity {
         protected Boolean doInBackground(String... arg0) {
             MyConnectionManager.getInstance().setConnectionConfiguration(getApplicationContext());
             MyConnectionManager.getInstance().connect();
-            MyConnectionManager.getInstance().login(intent.getStringExtra("user"), intent.getStringExtra("user"));
+            MyConnectionManager.getInstance().login();
             return true;
         }
 
@@ -232,27 +238,27 @@ public class BoredActivity extends AppCompatActivity {
             roster.addRosterListener(new RosterListener() {
                 @Override
                 public void entriesDeleted(Collection<String> addresses) {
-                    Log.e(TAG, "entriesDeleted");
+                    Log.v(TAG, "entriesDeleted");
                 }
 
                 @Override
                 public void entriesUpdated(Collection<String> addresses) {
-                    Log.e(TAG, "entriesUpdated");
+                    Log.v(TAG, "entriesUpdated");
                 }
 
                 @Override
                 public void entriesAdded(Collection<String> addresses) {
-                    Log.e(TAG, "entriesAdded");
+                    Log.v(TAG, "entriesAdded");
                     for (String address : addresses) {
                         MyConnectionManager.getInstance().addFriend(address);
-                        Log.e(TAG, "entrisAdded: " + address);
+                        Log.v(TAG, "entrisAdded: " + address);
                     }
 
                 }
 
                 @Override
                 public void presenceChanged(Presence presence) {
-                    Log.e(TAG, "The following presence has changed: " + presence.getFrom() + " :" + presence.getStatus());
+                    Log.v(TAG, "The following presence has changed: " + presence.getFrom() + " :" + presence.getStatus());
                     if (presence.getStatus() == null) return;
                     if (presence.getStatus().equals("Bored")) {
                         people.add(new People(presence.getFrom(), presence.getStatus()));
@@ -278,9 +284,9 @@ public class BoredActivity extends AppCompatActivity {
                     chat.addMessageListener(new ChatMessageListener() {
                         @Override
                         public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
-                            Log.e(TAG, chat.getParticipant() + ". m: " + message.getBody());
+                            Log.v(TAG, chat.getParticipant() + ". m: " + message.getBody());
                             if (message.getBody() != null) {
-                                Log.e(TAG, "eba: " + message.getFrom());
+                                Log.v(TAG, "eba: " + message.getFrom());
                             }
                         }
                     });

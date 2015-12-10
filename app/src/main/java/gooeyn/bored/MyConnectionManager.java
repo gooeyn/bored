@@ -3,6 +3,8 @@ package gooeyn.bored;
 import android.content.Context;
 import android.util.Log;
 
+import com.facebook.AccessToken;
+
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.packet.Presence;
@@ -117,14 +119,15 @@ public class MyConnectionManager {
         }
     }
 
-    public void login(String user, String password)
+    public void login()
     {
         Log.v(TAG, "Attempting to login..");
         if(connection.isAuthenticated()) return;
 
+        AccessToken accessToken = AccessToken.getCurrentAccessToken(); // get current access token
         try
         {
-            connection.login(user, password);
+            connection.login(accessToken.getUserId(), "smack");
         }
         catch(Exception e)
         {
@@ -204,7 +207,7 @@ public class MyConnectionManager {
         try
         {
             roster.createEntry(friend, friend, null);
-            Log.e(TAG, "Friend added: " + friend);
+            Log.v(TAG, "Friend added: " + friend);
         }
         catch (Exception e)
         {
