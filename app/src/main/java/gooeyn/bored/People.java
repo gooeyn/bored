@@ -15,4 +15,8 @@ public class People {
     {
         return name;
     }
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
 }

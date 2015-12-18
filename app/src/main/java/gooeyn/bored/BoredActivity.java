@@ -4,22 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -37,6 +25,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
+import com.squareup.picasso.Picasso;
 
 import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.packet.Message;
@@ -47,9 +36,6 @@ import org.jivesoftware.smack.roster.RosterListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -139,7 +125,10 @@ public class BoredActivity extends CountdownActivity {
                     {
                         try
                         {
-                            new DownloadImage().execute(object.getJSONObject("picture").getJSONObject("data").getString("url"));
+                            String URL = object.getJSONObject("picture").getJSONObject("data").getString("url");
+                            //new DownloadImage().execute(URL);
+                            //Picasso.with(context).load(URL).into(profileImgView);
+                            Picasso.with(context).load(URL).transform(new CircleTransform()).into(profileImgView);
                             profileTxtView.setText(object.getString("name"));
                         }
                         catch (JSONException e)
@@ -313,6 +302,8 @@ public class BoredActivity extends CountdownActivity {
                     });
                 }
                 });
+
+            /*
                 ChatManager chatmanager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
                 chatmanager.addChatListener(new ChatManagerListener() {
                 @Override
@@ -329,10 +320,57 @@ public class BoredActivity extends CountdownActivity {
                     });
                 }
             });
+*/
+            ChatManager chatmanager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
+           /* chatmanager.addChatListener(new ChatManagerListener() {
+                @Override
+                public void chatCreated(org.jivesoftware.smack.chat.Chat chat, boolean createdLocally) {
+                    chat.addMessageListener(new ChatMessageListener() {
+                        @Override
+                        public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
+                            Log.v(TAG, chat.getParticipant() + ". m: " + message.getBody());
+                            if (message.getBody() != null) {
+                                Log.v(TAG, "eba: " + message.getFrom());
+                                Toast.makeText(context, "You got a message from " + message.getFrom(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            });*/
+
+            chatmanager.addChatListener(
+                    new ChatManagerListener() {
+                        @Override
+                        public void chatCreated(Chat chat, boolean createdLocally)
+                        {
+                            if (!createdLocally)
+                                chat.addMessageListener(new ChatMessageListener() {
+                                    @Override
+                                    public void processMessage(org.jivesoftware.smack.chat.Chat chat, Message message) {
+                                        Log.v(TAG, chat.getParticipant() + ". m: " + message.getBody());
+                                        if (message.getBody() != null) {
+                                            Log.d(TAG, "HEY NEW FCKING MEEEESSAGE: " + message.getFrom());
+                                            for (People d : people) {
+                                                if (d.getName().equals(message.getFrom()))
+                                                {
+                                                    d.setStatus(message.getBody());
+                                                }
+                                            }
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                        }
+                    });
+
             dialog.dismiss();
         }
     }
-
     public Boolean isUnique(ArrayList<People> people, String user)
     {
         for (People d : people) {
@@ -340,74 +378,5 @@ public class BoredActivity extends CountdownActivity {
         }
 
         return true;
-    }
-    /*
-    THIS ASYNCTASK DOWNLOADS THE GIVEN IMAGE IN BACKGROUD AND THEN SETS
-    IT TO AN IMAGE VIEW.
-     */
-    public class DownloadImage extends AsyncTask<String, Integer, Drawable> {
-
-        @Override
-        protected Drawable doInBackground(String... arg0) {
-            URL url;
-            InputStream in;
-            BufferedInputStream buf;
-
-            try
-            {
-                url = new URL(arg0[0]);
-                in = url.openStream();
-                buf = new BufferedInputStream(in);
-                Bitmap bMap = BitmapFactory.decodeStream(buf);
-                in.close();
-                buf.close();
-                Bitmap bMap2 = getRoundedBitmap(bMap, 300);
-                return new BitmapDrawable(getApplicationContext().getResources(), bMap2);
-            }
-            catch (Exception e)
-            {
-                Log.e(TAG, e.toString());
-            }
-
-            return null;
-        }
-
-        @SuppressWarnings("deprecation")
-        protected void onPostExecute(Drawable image)
-        {
-            if(Build.VERSION.SDK_INT >= 16) {
-                profileImgView.setBackground(image);
-                //navImageView.setBackground(image);
-            } else {
-                profileImgView.setBackgroundDrawable(image);
-                //navImageView.setBackgroundDrawable(image);
-            }
-        }
-
-        public Bitmap getRoundedBitmap(Bitmap bmp, int radius) {
-            Bitmap sbmp;
-            if(bmp.getWidth() != radius || bmp.getHeight() != radius)
-                sbmp = Bitmap.createScaledBitmap(bmp, radius, radius, false);
-            else
-                sbmp = bmp;
-            Bitmap output = Bitmap.createBitmap(sbmp.getWidth(),
-                    sbmp.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(output);
-
-            final Paint paint = new Paint();
-            final Rect rect = new Rect(0, 0, sbmp.getWidth(), sbmp.getHeight());
-
-            paint.setAntiAlias(true);
-            paint.setFilterBitmap(true);
-            paint.setDither(true);
-            canvas.drawARGB(0, 0, 0, 0);
-            paint.setColor(Color.parseColor("#BAB399"));
-            canvas.drawCircle(sbmp.getWidth() / 2+0.7f, sbmp.getHeight() / 2+0.7f,
-                    sbmp.getWidth() / 2+0.1f, paint);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-            canvas.drawBitmap(sbmp, rect, rect, paint);
-
-            return output;
-        }
     }
 }
