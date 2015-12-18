@@ -53,7 +53,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BoredActivity extends AppCompatActivity {
+public class BoredActivity extends CountdownActivity {
     String TAG = "myshit";
     ImageView profileImgView;
     TextView profileTxtView;
