@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
@@ -67,10 +66,11 @@ public class BoredActivity extends CountdownActivity {
         else //IF USER IS LOGGED IN
         {
             intent = getIntent();
-            getFacebookData();
+
         /* DECLARE ALL VARIABLES */
             navImageView = (ImageView) findViewById(R.id.imageViewDroid);
             profileImgView = (ImageView) findViewById(R.id.profileImgView);
+            if(profileImgView.getDrawable() == null)    getFacebookData();
             profileTxtView = (TextView) findViewById(R.id.profileTxtView);
             events_list = (ListView) findViewById(R.id.peopleBored);
             final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -126,8 +126,6 @@ public class BoredActivity extends CountdownActivity {
                         try
                         {
                             String URL = object.getJSONObject("picture").getJSONObject("data").getString("url");
-                            //new DownloadImage().execute(URL);
-                            //Picasso.with(context).load(URL).into(profileImgView);
                             Picasso.with(context).load(URL).transform(new CircleTransform()).into(profileImgView);
                             profileTxtView.setText(object.getString("name"));
                         }
@@ -138,7 +136,7 @@ public class BoredActivity extends CountdownActivity {
                     }
                 });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "picture.type(large),name,cover,friends");
+        parameters.putString("fields", "picture.type(large),name");
         request.setParameters(parameters);
         request.executeAsync();
     }

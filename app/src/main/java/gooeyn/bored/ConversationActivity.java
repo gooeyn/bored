@@ -21,6 +21,7 @@ public class ConversationActivity extends AppCompatActivity {
     ArrayList<MyChat> myChat = new ArrayList<>();
     String TAG = "myshit";
     ChatAdapter adapter;
+    Activity activity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,20 +33,23 @@ public class ConversationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final String user = intent.getStringExtra("user");
         setTitle(user);
+        activity = ConversationActivity.this;
         adapter = new ChatAdapter(getApplicationContext(), myChat);
         listview.setAdapter(adapter);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String text = sendText.getText().toString();
+                Log.e(TAG, "string text: " + text);
                 sendText.setText("");
                 Message m = new Message(user, Message.Type.chat);
                 m.setFrom(connection.getUser());
                 m.setBody(text);
+                Log.e(TAG, "message body: " + m.getBody());
                 try {
                     connection.sendStanza(m);
                     myChat.add(new MyChat(text));
-                    Activity activity = ConversationActivity.this;
+
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -59,7 +63,6 @@ public class ConversationActivity extends AppCompatActivity {
         });
 
         ChatManager chatmanager = ChatManager.getInstanceFor(connection);
-
         chatmanager.addChatListener(new ChatManagerListener()
         {
             @Override
@@ -72,8 +75,9 @@ public class ConversationActivity extends AppCompatActivity {
                     {
                         if (message.getBody() != null)
                         {
+                            Log.e(TAG, "message body: " + message.getBody());
                             myChat.add(new MyChat(message.getBody()));
-                            Activity activity = ConversationActivity.this;
+
                             activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run()

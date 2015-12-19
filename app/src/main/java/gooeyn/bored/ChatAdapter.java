@@ -5,72 +5,40 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 
-public class ChatAdapter extends BaseAdapter {
-    private static LayoutInflater inflater=null;
+public class ChatAdapter extends ArrayAdapter<MyChat> {
     private ArrayList<MyChat> events_list = new ArrayList<>();
     Context context;
 
-    public ChatAdapter(Context context, ArrayList<MyChat> events_list)
-    {
-        this.events_list = events_list;
+    public ChatAdapter(Context context, ArrayList<MyChat> users) {
+        super(context, 0, users);
         this.context = context;
-        inflater = ( LayoutInflater )context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    @Override
-    public int getCount() {
-        return events_list.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return position;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    public class Holder
-    {
-        TextView tv;
-        ImageView img;
+        this.events_list = users;
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        Holder holder=new Holder();
-        View rowView;
-        if(convertView == null)
-        {
-            rowView = inflater.inflate(R.layout.chat_list, parent, false);
-            holder.tv = (TextView) rowView.findViewById(R.id.textView1);
-            holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
-            holder.tv.setText(events_list.get(position).name);
+        MyChat user = getItem(position);
 
-            rowView.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(context, ConversationActivity.class);
-                    i.putExtra("user", events_list.get(position).name);
-                    context.startActivity(i);
-                }
-            });
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_list, parent, false);
         }
-        else
+
+        TextView tvName = (TextView) convertView.findViewById(R.id.textMessage);
+        tvName.setText(user.name);
+
+        convertView.setOnClickListener(new View.OnClickListener()
         {
-            return convertView;
-        }
-        return rowView;
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return convertView;
     }
 }

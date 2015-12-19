@@ -7,8 +7,7 @@ import android.util.Log;
 
 public class CountdownActivity extends Activity {
 
-    //public static final long DISCONNECT_TIMEOUT = 300000; // 5 min = 5 * 60 * 1000 ms
-    public static final long DISCONNECT_TIMEOUT = 60000; // 5 min = 5 * 60 * 1000 ms
+    public static final long DISCONNECT_TIMEOUT = 3600000; // 60 min = 60 * 60 * 1000 ms
     private String TAG = "myshit";
     private static Handler disconnectHandler = new Handler(){
         public void handleMessage(Message msg) {

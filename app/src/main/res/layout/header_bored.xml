@@ -10,13 +10,12 @@
         android:layout_height="300px"
         android:id="@+id/profileImgView"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/roundedprofile" />
+/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
         android:id="@+id/profileTxtView"
         android:textColor="#4d4d4d"
         android:layout_gravity="center_horizontal" />
