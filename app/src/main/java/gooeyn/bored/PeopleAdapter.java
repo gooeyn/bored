@@ -2,12 +2,17 @@ package gooeyn.bored;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 public class PeopleAdapter extends ArrayAdapter<People> {
@@ -27,11 +32,13 @@ public class PeopleAdapter extends ArrayAdapter<People> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.people_list, parent, false);
         }
-
+        ImageView profileImgView = (ImageView) convertView.findViewById(R.id.profileImgView);
         TextView tvName = (TextView) convertView.findViewById(R.id.name);
-        TextView tvStatus = (TextView) convertView.findViewById(R.id.status);
         tvName.setText(user.name);
-        tvStatus.setText(user.status);
+
+        if(user.profile != null)
+            if(!user.profile.equals(""))
+                Picasso.with(context).load(user.profile).transform(new CircleTransform()).into(profileImgView);
 
         convertView.setOnClickListener(new View.OnClickListener()
         {

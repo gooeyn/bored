@@ -4,5 +4,5 @@
         android:state_pressed="true" />
     <item android:drawable="@drawable/icon_people_tint"
         android:state_selected="true" />
-    <item android:drawable="@drawable/ic_people_outline_black_24dp" />
+    <item android:drawable="@drawable/icon_people_notselected" />
 </selector>

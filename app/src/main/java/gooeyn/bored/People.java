@@ -3,20 +3,36 @@ package gooeyn.bored;
 public class People {
 
     String name;
-    String status;
+    String profile;
+    String id;
 
-    public People(String name, String status)
+    public People(String name, String profile, String id)
     {
         this.name = name;
-        this.status = status;
+        this.profile = profile;
+        this.id = id;
     }
 
     public String getName()
     {
         return name;
     }
-    public void setStatus(String status)
+    public String getId()
     {
-        this.status = status;
+        return id;
     }
+
+    public void setProfile(String profile)
+    {
+        this.profile = profile;
+    }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+    public void setId(String id)
+    {
+        this.id = id;
+    }
+
 }

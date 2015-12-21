@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     JSONArray friendsArray;
     LoginButton loginButton;
     String TAG = "myshit/LoginActivity";
-    String server = "http://ec2-54-84-237-97.compute-1.amazonaws.com/insert.php";
+    String server = "http://ec2-54-84-237-97.compute-1.amazonaws.com/insertdata.php";
     String host = "54.84.237.97";
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -98,12 +98,18 @@ public class LoginActivity extends AppCompatActivity {
                             hashData.put("first_name", object.getString("first_name"));
                             hashData.put("last_name", object.getString("last_name"));
                             hashData.put("facebook_id", object.getString("id"));
+                            hashData.put("email", object.getString("id") + "@" + host);
 
                             if (object.getString("gender").equals("male")) {
                                 hashData.put("gender", "m");
                             } else {
                                 hashData.put("gender", "f");
                             }
+
+
+                            String URL = object.getJSONObject("picture").getJSONObject("data").getString("url");
+
+                            hashData.put("profile_url", URL);
                             //hashData.put("friend_name", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("name"));
                             //hashData.put("friend_id", object.getJSONObject("friends").getJSONArray("data").getJSONObject(0).getString("id"));
                             friendsArray = object.getJSONObject("friends").getJSONArray("data");
@@ -117,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "name,first_name,last_name,gender,id, friends");
+        parameters.putString("fields", "name,first_name,last_name,gender,id, friends, picture.type(large)");
         request.setParameters(parameters);
         request.executeAsync();
     }
@@ -188,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
             protected void onPostExecute(Void v)
             {
                 dialog.dismiss();
-                Intent i = new Intent(LoginActivity.this, BoredActivity.class);
+                Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 i.putExtra("user", hashData.get("facebook_id"));
                 i.putExtra("pass", "android");
                 startActivity(i);

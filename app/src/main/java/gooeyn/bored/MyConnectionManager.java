@@ -29,6 +29,7 @@ public class MyConnectionManager {
     int port = 5225;
     String resource = "Android";
     String TAG = "myshit/MyConnectionManager";
+    private Boolean isBored = false;
 
     private static MyConnectionManager instance = null;
 
@@ -138,6 +139,7 @@ public class MyConnectionManager {
     public void bored()
     {
         Log.v(TAG, "Setting status to BORED..");
+        isBored = true;
         try
         {
             Presence p = new Presence(Presence.Type.available, "Bored", 1, Presence.Mode.available);
@@ -152,6 +154,7 @@ public class MyConnectionManager {
     public void notBored()
     {
         Log.v(TAG, "Setting status to NOT BORED..");
+        isBored = false;
         try
         {
             Presence p = new Presence(Presence.Type.available, "Not bored", 1, Presence.Mode.available);
@@ -219,6 +222,9 @@ public class MyConnectionManager {
         {
             Log.e(TAG, "Error adding friend: " + e.toString());
         }
-
+    }
+    public boolean isBored()
+    {
+        return isBored;
     }
 }

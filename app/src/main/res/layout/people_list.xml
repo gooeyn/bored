@@ -13,31 +13,24 @@ android:padding="5dip" >
     android:layout_marginRight="5dip">
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/profileImgView"
         android:layout_width="50dip"
         android:layout_height="50dip"
         android:src="@drawable/roundedprofile"/>
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:text="oieeeeeeeeeeeeee"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="15dip"
+        android:textStyle="bold" />
+
 </LinearLayout>
 
-<TextView
-    android:id="@+id/name"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignTop="@+id/thumbnail"
-    android:textColor="#040404"
-    android:typeface="sans"
-    android:textSize="15dip"
-    android:textStyle="bold"
-    android:layout_toRightOf="@+id/thumbnail"
-    android:layout_toEndOf="@+id/thumbnail" />
 
-<TextView
-    android:id="@+id/status"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@id/name"
-    android:textColor="#343434"
-    android:textSize="10dip"
-    android:layout_marginTop="1dip"
-    android:layout_toRightOf="@+id/thumbnail" />
 </RelativeLayout>
