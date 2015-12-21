@@ -3,11 +3,7 @@ package gooeyn.bored;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 
 import com.squareup.picasso.Transformation;
 
@@ -45,7 +41,7 @@ public class CircleTransform implements Transformation {
         return "circle";
     }
 
-    public Bitmap getRoundedBitmap(Bitmap bmp, int radius) {
+    /*public Bitmap getRoundedBitmap(Bitmap bmp, int radius) {
         Bitmap sbmp;
         if(bmp.getWidth() != radius || bmp.getHeight() != radius)
             sbmp = Bitmap.createScaledBitmap(bmp, radius, radius, false);
@@ -69,5 +65,5 @@ public class CircleTransform implements Transformation {
         canvas.drawBitmap(sbmp, rect, rect, paint);
 
         return output;
-    }
+    }*/
 }
