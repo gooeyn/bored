@@ -33,6 +33,9 @@ public class PeopleAdapter extends ArrayAdapter<People> {
         }
         ImageView profileImgView = (ImageView) convertView.findViewById(R.id.profileImgView);
         TextView tvName = (TextView) convertView.findViewById(R.id.name);
+        TextView tvStatus = (TextView) convertView.findViewById(R.id.status);
+
+        tvStatus.setText(user.status);
         tvName.setText(user.name);
 
         if(user.profile != null)

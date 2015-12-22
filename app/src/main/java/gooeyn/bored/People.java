@@ -5,12 +5,14 @@ public class People {
     String name;
     String profile;
     String id;
+    String status;
 
-    public People(String name, String profile, String id)
+    public People(String name, String profile, String id, String status)
     {
         this.name = name;
         this.profile = profile;
         this.id = id;
+        this.status = status;
     }
 
     public String getName()
@@ -33,6 +35,10 @@ public class People {
     public void setId(String id)
     {
         this.id = id;
+    }
+    public void setStatus(String status)
+    {
+        this.status = status;
     }
 
 }

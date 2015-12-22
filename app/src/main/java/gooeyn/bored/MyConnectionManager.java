@@ -142,7 +142,7 @@ public class MyConnectionManager {
         isBored = true;
         try
         {
-            Presence p = new Presence(Presence.Type.available, "Bored", 1, Presence.Mode.available);
+            Presence p = new Presence(Presence.Type.available, "", 1, Presence.Mode.available);
             connection.sendStanza(p);
         }
         catch(Exception e)
@@ -157,7 +157,7 @@ public class MyConnectionManager {
         isBored = false;
         try
         {
-            Presence p = new Presence(Presence.Type.available, "Not bored", 1, Presence.Mode.available);
+            Presence p = new Presence(Presence.Type.available, "", 0, Presence.Mode.available);
             connection.sendStanza(p);
         }
         catch(Exception e)
@@ -226,5 +226,20 @@ public class MyConnectionManager {
     public boolean isBored()
     {
         return isBored;
+    }
+
+    public void setStatus(String status)
+    {
+        Log.v(TAG, "Setting status..");
+        isBored = true;
+        try
+        {
+            Presence p = new Presence(Presence.Type.available, status, 1, Presence.Mode.available);
+            connection.sendStanza(p);
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, "Error setting status: " + e.toString());
+        }
     }
 }

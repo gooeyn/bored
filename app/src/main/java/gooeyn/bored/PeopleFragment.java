@@ -42,6 +42,10 @@ public class PeopleFragment extends Fragment {
     String TAG = "myshit";
     HashMap<String, String> hashData = new HashMap<>();
     Activity activity;
+    /*
+    I NEED TO FIX THE FOLLOWING EXCEPTION
+        java.util.ConcurrentModificationException
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e(TAG, "ONCREATE PEOPLE FRAGMENT");
@@ -77,12 +81,9 @@ public class PeopleFragment extends Fragment {
                 txt.setVisibility(View.INVISIBLE);
                 Roster roster = Roster.getInstanceFor(MyConnectionManager.getInstance().getConnection());
 
-                try
-                {
+                try {
                     if (!roster.isLoaded()) roster.reloadAndWait();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     Log.e(TAG, "reload");
                 }
 
@@ -92,18 +93,27 @@ public class PeopleFragment extends Fragment {
                     Presence presence = roster.getPresence(entry.getUser());
                     Log.e(TAG, "This is the name: " + entry.getName());
                     Log.e(TAG, "This is the user: " + entry.getUser());
-                    if(presence != null)
-                    {
-                        if(presence.getStatus() != null)
-                        {
-                            if (presence.getStatus().equals("Bored")) {
+                    if (presence != null) {
+                        if (presence.getStatus() != null) {
+                            if (presence.getPriority() == 1) {
                                 String from = presence.getFrom();
                                 String id = from.substring(0, from.indexOf("@"));
 
-                                if(isUnique(people, id))
-                                {
-                                    people.add(new People("","",id));
+                                if (isUnique(people, id)) {
+                                    people.add(new People("", "", id, presence.getStatus()));
                                     new ConnectAndLoad(presence.getFrom()).execute();
+                                } else {
+                                    for (People d : people) {
+                                        if (d.getId().equals(id)) {
+                                            d.setStatus(presence.getStatus());
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                            });
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -138,7 +148,10 @@ public class PeopleFragment extends Fragment {
                         //Log.e(TAG, "This is the name: " + r.getEntry(presence.getStatus()));
                         String from = presence.getFrom();
                         String id = from.substring(0, from.indexOf("@"));
-
+                        Log.v(TAG, "PPPPPPPPPPPRESENCE STATUS: " + presence.getStatus());
+                        Log.v(TAG, "PPPPPPPPPPPRESENCE MODE: " + presence.getMode());
+                        Log.v(TAG, "PPPPPPPPPPPRESENCE PRIORITY: " + presence.getPriority());
+                        Log.v(TAG, "PPPPPPPPPPPRESENCE TYPE: " + presence.getType());
                         if (presence.getStatus() == null) {
 
                             for (People d : people) {
@@ -153,11 +166,22 @@ public class PeopleFragment extends Fragment {
                                     });
                                 }
                             }
-                        } else if (presence.getStatus().equals("Bored")) {
+                        } else if (presence.getPriority() == 1) {
                             if (isUnique(people, id)) {
-                                Log.v(TAG, "presence changed getFrom " + presence.getFrom());
-                                people.add(new People("","",id));
+                                people.add(new People("", "", id, presence.getStatus()));
                                 new ConnectAndLoad(presence.getFrom()).execute();
+                            } else {
+                                for (People d : people) {
+                                    if (d.getId().equals(id)) {
+                                        d.setStatus(presence.getStatus());
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+                                }
                             }
                         } else {
                             for (People d : people) {

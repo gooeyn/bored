@@ -203,6 +203,7 @@ public class HandlerActivity extends AppCompatActivity {
         {
             Intent i = new Intent(HandlerActivity.this, MainActivity.class);
             startActivity(i);
+            finish();
         }
     }
 }

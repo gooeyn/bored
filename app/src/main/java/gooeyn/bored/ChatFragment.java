@@ -78,7 +78,7 @@ public class ChatFragment extends Fragment {
                         if (message.getBody() != null)
                         {
                             Log.e(TAG, "message body: " + message.getBody());
-                            people.add(new People(message.getBody(), "oi", "oi"));
+                            people.add(new People(message.getBody(), "oi", "oi"," oi"));
 
                             activity.runOnUiThread(new Runnable() {
                                 @Override

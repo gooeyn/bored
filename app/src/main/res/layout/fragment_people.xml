@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="I'M NOT BORED ANYMORE"
-            android:textColor="#ffFFff"
+            android:textColor="#ffffff"
             android:background="@drawable/notboredbutton"
             android:id="@+id/button2" />
 

@@ -1,6 +1,8 @@
 package gooeyn.bored;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -23,6 +27,7 @@ import org.json.JSONObject;
 
 public class MenuFragment extends Fragment {
     TextView profileTxtView;
+    TextView statusTxtView;
     ImageView profileImgView;
     Context context;
     String TAG = "myshit";
@@ -33,14 +38,41 @@ public class MenuFragment extends Fragment {
         context = getContext();
         profileTxtView = (TextView) view.findViewById(R.id.profileTxtView);
         profileImgView = (ImageView) view.findViewById(R.id.profileImgView);
+        statusTxtView = (TextView) view.findViewById(R.id.statusTextView);
         Button logoutButton = (Button) view.findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MyConnectionManager.getInstance().notBored();
                 LoginManager.getInstance().logOut();
                 Intent i = new Intent(getActivity(), LoginActivity.class);
                 startActivity(i);
                 getActivity().finish();
+            }
+        });
+
+        statusTxtView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+                alertDialog.setTitle("What do you want to do?");
+                alertDialog.setMessage("Hey, tell your friends what you want to do: ");
+                final EditText input = new EditText(getActivity());
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                alertDialog.setView(input);
+
+                alertDialog.setPositiveButton("Done!",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MyConnectionManager.getInstance().setStatus(input.getText().toString());
+                                statusTxtView.setText(input.getText().toString());
+                            }
+                        });
+
+                alertDialog.show();
             }
         });
         getFacebookData();
