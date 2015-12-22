@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -21,89 +20,110 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class ChatAdapter extends ArrayAdapter<MyChat> {
-    private ArrayList<MyChat> events_list = new ArrayList<>();
+    private ArrayList<MyChat> users = new ArrayList<>();
     Context context;
     String TAG = "myshit";
+    ImageView pictureImgView;
 
     public ChatAdapter(Context context, ArrayList<MyChat> users) {
         super(context, 0, users);
         this.context = context;
-        this.events_list = users;
+        this.users = users;
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        MyChat user = getItem(position);
+        MyChat chat = getItem(position); //GET CHAT
 
+        //IF THE CONVERT VIEW IS NULL, CREATE A NEW ONE
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_list, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.list_item_chat, parent, false);
         }
-        final ImageView profileImgView = (ImageView) convertView.findViewById(R.id.profileImgView);
-        TextView tvName = (TextView) convertView.findViewById(R.id.name);
-        TextView tvMessage = (TextView) convertView.findViewById(R.id.textMessage);
 
-        tvMessage.setText(user.status);
-        tvName.setText(user.name);
+        // ASSIGNING VARIABLES
+        pictureImgView = (ImageView) convertView.findViewById(R.id.pictureImgView);
+        TextView nameTxtView = (TextView) convertView.findViewById(R.id.nameTxtView);
+        TextView messageTxtView = (TextView) convertView.findViewById(R.id.messageTxtView);
 
-        String FILENAME = user.getId() + "_profile";
-        final File file = new File(context.getFilesDir(), FILENAME);
+        //SETTINGS THE USER INFORMATION
+        nameTxtView.setText(chat.getMessage());
+        messageTxtView.setText(chat.getName());
+        setUserPicture(chat);
+
+        //ON CLICK LISTENER FOR THE USER, OPENS CONVERSATION ACTIVITY
+        convertView.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent i = new Intent(context, ConversationActivity.class); //CREATE NEW INTENT
+                i.putExtra("user", users.get(position).getName()); //EXTRA USER NAME. EX: GUILHERME NOBRE
+                i.putExtra("id", users.get(position).getId()); //EXTRA USER ID. EX: 1239210832293
+                context.startActivity(i); //START CONVERSATION ACTIVITY
+            }
+        });
+
+        return convertView; //RETURN THE VIEW
+    }
+
+
+    public void setUserPicture(MyChat chat)
+    {
+        String filePicture = chat.getId() + "_picture";
+        final File file = new File(context.getFilesDir(), filePicture);
 
         if(file.exists())
         {
             try
             {
-                Log.e(TAG, "READ THE IMAGE SUCESSFULLY");
-                Picasso.with(context).load(file).transform(new CircleTransform()).into(profileImgView);
+                Log.v(TAG, "Image loaded successfully: " + file.getName());
+                Picasso.with(context).load(file).transform(new CircleTransform()).into(pictureImgView);
             }
             catch (Exception e)
             {
-                Log.e(TAG, "Error getting the image: " + e.toString());
+                Log.e(TAG, "Error loading the image: " + e.toString());
             }
         }
-        else {
-            if (user.profile != null)
-                if (!user.profile.equals("")) {
-                    Target target = new Target() {
-                        @Override
-                        public void onPrepareLoad(Drawable arg0) {
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Drawable arg0) {
-                        }
-
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
-                            profileImgView.setImageBitmap(bitmap);
-                            try {
-                                FileOutputStream fos = getContext().openFileOutput(file.getName(), Context.MODE_PRIVATE);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                                fos.flush();
-                                fos.close();
-
-                                Log.e(TAG, "Image stored");
-
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error storing the image: " + e.toString());
-                            }
-                        }
-                    };
-
-                    Picasso.with(context).load(user.profile).transform(new CircleTransform()).into(target);
-                }
+        else
+        {
+            loadPicture(chat, file);
         }
+    }
 
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(context, ConversationActivity.class);
-                i.putExtra("user", events_list.get(position).name);
-                i.putExtra("id", events_list.get(position).getId());
-                context.startActivity(i);
+    public void loadPicture(final MyChat chat, final File file)
+    {
+        if (chat.getPicture() != null)
+        {
+            if (!chat.getPicture().equals(""))
+            {
+                Target target = new Target()
+                {
+                    @Override
+                    public void onPrepareLoad(Drawable arg0) {
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable arg0) {
+                    }
+
+                    @Override //SET IMAGE BITMAP TO IMAGEVIEW AND STORE IMAGE ON INTERNAL MEMORY
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
+                        pictureImgView.setImageBitmap(bitmap);
+                        try {
+                            FileOutputStream fos = context.openFileOutput(file.getName(), Context.MODE_PRIVATE);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                            fos.flush();
+                            fos.close();
+
+                            Log.v(TAG, "Image stored successfully: " + file.getName());
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error storing the image: " + e.toString());
+                        }
+                    }
+                };
+                Picasso.with(context).load(chat.getPicture()).transform(new CircleTransform()).into(target);
             }
-        });
-
-        return convertView;
+        }
     }
 }

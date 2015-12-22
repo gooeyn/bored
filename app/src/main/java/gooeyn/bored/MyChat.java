@@ -2,43 +2,57 @@ package gooeyn.bored;
 
 public class MyChat {
 
-    String name;
-    String profile;
-    String id;
-    String status;
+    private String name;
+    private String picture;
+    private String id;
+    private String message;
 
-    public MyChat(String name, String profile, String id, String status)
+    public MyChat(String name, String picture, String id, String message)
     {
         this.name = name;
-        this.profile = profile;
+        this.picture = picture;
         this.id = id;
-        this.status = status;
+        this.message = message;
     }
 
+    /*
+    GETTERS
+     */
     public String getName()
     {
-        return name;
+        return this.name;
+    }
+    public String getPicture()
+    {
+        return this.picture;
     }
     public String getId()
     {
-        return id;
+        return this.id;
+    }
+    public String getMessage()
+    {
+        return this.message;
     }
 
-    public void setProfile(String profile)
-    {
-        this.profile = profile;
-    }
+    /*
+    SETTERS
+     */
     public void setName(String name)
     {
         this.name = name;
+    }
+    public void setPicture(String picture)
+    {
+        this.picture = picture;
     }
     public void setId(String id)
     {
         this.id = id;
     }
-    public void setStatus(String status)
+    public void setMessage(String message)
     {
-        this.status = status;
+        this.message = message;
     }
 
 }

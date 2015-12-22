@@ -3,6 +3,10 @@ package gooeyn.bored;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+
+/*
+ACTIVITY CREATES A COUTNDOWN. RUNNABLE EXECUTES WHEN IT REACHES THE TIMEOUT WITHOUT USER INTERACTION
+ */
 public class CountdownActivity extends Activity {
 
     public static final long DISCONNECT_TIMEOUT = 3600000; // 60 min = 60 * 60 * 1000 ms

@@ -36,7 +36,7 @@ public class PeopleAdapter extends ArrayAdapter<People> {
         People user = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.people_list, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_user, parent, false);
         }
         final ImageView profileImgView = (ImageView) convertView.findViewById(R.id.profileImgView);
         TextView tvName = (TextView) convertView.findViewById(R.id.name);

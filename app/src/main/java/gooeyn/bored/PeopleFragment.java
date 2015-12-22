@@ -45,30 +45,31 @@ public class PeopleFragment extends Fragment {
     String TAG = "myshit";
     HashMap<String, String> hashData = new HashMap<>();
     Activity activity;
+
     /*
     I NEED TO FIX THE FOLLOWING EXCEPTION
         java.util.ConcurrentModificationException
      */
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e(TAG, "ONCREATE PEOPLE FRAGMENT");
         View view = inflater.inflate(R.layout.fragment_people, container, false);
 
+        //ASSIGNING VARIABLES
         final Button boredButton = (Button) view.findViewById(R.id.buttonBored);
         final LinearLayout lowerTab = (LinearLayout) view.findViewById(R.id.lowerTab);
         final Button tabButton = (Button) view.findViewById(R.id.button2);
         final ListView peopleLV = (ListView) view.findViewById(R.id.peopleBored);
         final TextView txt = (TextView) view.findViewById(R.id.textPress);
-
         activity = getActivity();
-
         adapter = new PeopleAdapter(getContext(), people);
         peopleLV.setAdapter(adapter);
-                /* SET ALL ON CLICK LISTENERS */
 
+        // SET ALL ON CLICK LISTENERS
         boredButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //SETTINGS THINGS UP
                 MyConnectionManager.getInstance().bored();
                 peopleLV.setVisibility(View.VISIBLE);
                 boredButton.setVisibility(View.INVISIBLE);
@@ -83,66 +84,7 @@ public class PeopleFragment extends Fragment {
                 }
 
                 Collection<RosterEntry> entries = roster.getEntries();
-
-                for (RosterEntry entry : entries) {
-                    Presence presence = roster.getPresence(entry.getUser());
-                    Log.e(TAG, "This is the name: " + entry.getName());
-                    Log.e(TAG, "This is the user: " + entry.getUser());
-                    if (presence != null) {
-                        if (presence.getStatus() != null) {
-                            if (presence.getPriority() == 1) {
-                                String from = presence.getFrom();
-                                String id = from.substring(0, from.indexOf("@"));
-
-                                if (isUnique(people, id)) {
-                                    People p = new People("", "", id, presence.getStatus());
-                                    people.add(p);
-
-                                    //String FILENAME = id + "_profile";
-                                    String filenameUser = id + "_username";
-
-                                    try
-                                    {
-                                        FileInputStream fis2 = getContext().openFileInput(filenameUser);
-                                        StringBuilder builder = new StringBuilder();
-                                        int ch;
-                                        while((ch = fis2.read()) != -1){
-                                            builder.append((char)ch);
-                                        }
-                                        Log.e(TAG, "THE NAME: " + builder.toString());
-                                        p.setName(builder.toString());
-                                        fis2.close();
-
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                adapter.notifyDataSetChanged();
-                                            }
-                                        });
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        new ConnectAndLoad(presence.getFrom()).execute();
-                                        Log.e(TAG, "Error getting the image: " + e.toString());
-                                    }
-                                } else {
-                                    for (People d : people) {
-                                        if (d.getId().equals(id)) {
-                                            d.setStatus(presence.getStatus());
-                                            activity.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
+                for (RosterEntry entry : entries) getUserFromRoster(roster.getPresence(entry.getUser()));
 
                 roster.addRosterListener(new RosterListener() {
                     @Override
@@ -158,100 +100,34 @@ public class PeopleFragment extends Fragment {
                     @Override
                     public void entriesAdded(Collection<String> addresses) {
                         Log.v(TAG, "entriesAdded");
-                        for (String address : addresses) {
-                            MyConnectionManager.getInstance().addFriend(address, address + "roster");
-                            Log.v(TAG, "entrisAdded: " + address);
-                        }
-
+                        for (String address : addresses) MyConnectionManager.getInstance().addFriend(address, address + "roster");
                     }
 
                     @Override
                     public void presenceChanged(Presence presence) {
-                        Log.v(TAG, "The following presence has changed: " + presence.getFrom() + ": " + presence.getStatus());
-                        //Log.e(TAG, "This is the name: " + r.getEntry(presence.getStatus()));
                         String from = presence.getFrom();
                         String id = from.substring(0, from.indexOf("@"));
-                        Log.v(TAG, "PPPPPPPPPPPRESENCE STATUS: " + presence.getStatus());
-                        Log.v(TAG, "PPPPPPPPPPPRESENCE MODE: " + presence.getMode());
-                        Log.v(TAG, "PPPPPPPPPPPRESENCE PRIORITY: " + presence.getPriority());
-                        Log.v(TAG, "PPPPPPPPPPPRESENCE TYPE: " + presence.getType());
-                        if (presence.getStatus() == null) {
 
-                            for (People d : people) {
-                                if (d.getId().equals(id)) {
-                                    Log.d(TAG, "people id: " + d.getId() + ". presence id: " + id);
-                                    people.remove(d);
-                                    activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                }
+                        if (presence.getStatus() == null || presence.getPriority() != 1)
+                        {
+                            removeFromPeople(id);
+                        }
+                        else
+                        {
+                            if (isUnique(people, id))
+                            {
+                                addToPeople(id, presence);
                             }
-                        } else if (presence.getPriority() == 1) {
-                            if (isUnique(people, id)) {
-                                People p = new People("", "", id, presence.getStatus());
-                                people.add(p);
-
-                                //String FILENAME = id + "_profile";
-                                String filenameUser = id + "_username";
-                                try
-                                {
-                                    FileInputStream fis2 = getContext().openFileInput(filenameUser);
-                                    StringBuilder builder = new StringBuilder();
-                                    int ch;
-                                    while((ch = fis2.read()) != -1){
-                                        builder.append((char)ch);
-                                    }
-                                    Log.e(TAG, "THE NAME: " + builder.toString());
-                                    p.setName(builder.toString());
-                                    fis2.close();
-
-                                    activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                }
-                                catch (Exception e)
-                                {
-                                    new ConnectAndLoad(presence.getFrom()).execute();
-                                    Log.e(TAG, "Error getting the image: " + e.toString());
-                                }
-
-                            } else {
-                                for (People d : people) {
-                                    if (d.getId().equals(id)) {
-                                        d.setStatus(presence.getStatus());
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                adapter.notifyDataSetChanged();
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        } else {
-                            for (People d : people) {
-                                Log.d(TAG, "people id: " + d.getId() + ". presence id: " + id);
-                                if (d.getId().equals(id)) {
-                                    people.remove(d);
-                                    activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-                                }
+                            else
+                            {
+                                updatePeople(id, presence);
                             }
                         }
                     }
                 });
             }
         });
+
         tabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -262,13 +138,7 @@ public class PeopleFragment extends Fragment {
                 txt.setVisibility(View.VISIBLE);
             }
         });
-
-
-
-        if (MyConnectionManager.getInstance().isBored())
-        {
-            boredButton.callOnClick();
-        }
+        if (MyConnectionManager.getInstance().isBored())    boredButton.callOnClick();
 
         return view;
     }
@@ -280,18 +150,116 @@ public class PeopleFragment extends Fragment {
         return true;
     }
 
+    //NOTIFIES DATA SET CHANGED ON UI THREAD
+    public void notifyDataSetChanged()
+    {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
 
+    public void addToPeople(String id, Presence presence)
+    {
+        People p = new People("", "", id, presence.getStatus());
+        people.add(p);
+        String filenameUser = id + "_username";
+        try
+        {
+            FileInputStream fis2 = getContext().openFileInput(filenameUser);
+            StringBuilder builder = new StringBuilder();
+            int ch;
+            while((ch = fis2.read()) != -1){
+                builder.append((char)ch);
+            }
+            Log.e(TAG, "THE NAME: " + builder.toString());
+            p.setName(builder.toString());
+            fis2.close();
 
+            notifyDataSetChanged();
+        }
+        catch (Exception e)
+        {
+            new ConnectAndLoad(presence.getFrom()).execute();
+            Log.e(TAG, "Error getting the image: " + e.toString());
+        }
+    }
+    public void updatePeople(String id, Presence presence)
+    {
+        for (People d : people)
+        {
+            if (d.getId().equals(id))
+            {
+                d.setStatus(presence.getStatus());
+                notifyDataSetChanged();
+            }
+        }
+    }
+    public void removeFromPeople(String id)
+    {
+        for (People d : people)
+        {
+            if (d.getId().equals(id))
+            {
+                people.remove(d);
+                notifyDataSetChanged();
+            }
+        }
+    }
 
+    public void getUserFromRoster(Presence presence)
+    {
+        if (presence != null)
+        {
+            if (presence.getStatus() != null)
+            {
+                if (presence.getPriority() == 1)
+                {
+                    String from = presence.getFrom();
+                    String id = from.substring(0, from.indexOf("@"));
 
+                    if (isUnique(people, id))
+                    {
+                        People p = new People("", "", id, presence.getStatus());
+                        people.add(p);
+                        String filenameUser = id + "_username";
 
+                        try
+                        {
+                            FileInputStream fis2 = getContext().openFileInput(filenameUser);
+                            StringBuilder builder = new StringBuilder();
+                            int ch;
+                            while((ch = fis2.read()) != -1){
+                                builder.append((char)ch);
+                            }
+                            p.setName(builder.toString());
+                            fis2.close();
 
-
-
-
-
-
-
+                            notifyDataSetChanged();
+                        }
+                        catch (Exception e)
+                        {
+                            new ConnectAndLoad(presence.getFrom()).execute();
+                            Log.e(TAG, "Error getting the image: " + e.toString());
+                        }
+                    }
+                    else
+                    {
+                        for (People d : people)
+                        {
+                            if (d.getId().equals(id))
+                            {
+                                d.setStatus(presence.getStatus());
+                                notifyDataSetChanged();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public class ConnectAndLoad extends AsyncTask<String, Integer, Boolean> {
         private String user;
@@ -302,7 +270,6 @@ public class PeopleFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(String... arg0) {
-
             String result = user.substring(0, user.indexOf("@"));
             Log.e(TAG, "RESULT:::::::::::::::::::: " + result);
             hashData.put("facebook_id", result);
@@ -371,18 +338,12 @@ public class PeopleFragment extends Fragment {
                     d.setName(username);
                     d.setProfile(profile);
 
-                    //String FILENAME = id + "_profile";
                     String filenameUser = id + "_username";
-
                     FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
                     fos2.write(username.getBytes());
                     fos2.close();
-
                 }
             }
-
-            Log.e(TAG, total.toString());
-            Log.e(TAG, profile);
         } finally {
             if (is != null) { //if input stream was opened
                 is.close(); //closes input stream

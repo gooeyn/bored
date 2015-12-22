@@ -38,12 +38,6 @@
         </activity>
         <activity
             android:name=".HandlerActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_handler"
-            android:theme="@style/FullscreenTheme">
-        </activity>
-        <activity
-            android:name=".HandlerActivity2"
             android:label="@string/title_activity_handler2"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

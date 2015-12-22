@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-android:orientation="horizontal"
-android:padding="5dip" >
-
-<LinearLayout android:id="@+id/thumbnail"
-    android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/thumbnail"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="3dip"
+    android:padding="5dip"
     android:layout_alignParentLeft="true"
-    android:layout_marginRight="5dip">
+    android:layout_alignParentStart="true"
+    android:layout_marginRight="5dip"
+    android:layout_marginEnd="5dip">
 
     <ImageView
-        android:id="@+id/profileImgView"
+        android:id="@+id/pictureImgView"
         android:layout_width="50dip"
         android:layout_height="50dip"
-        android:src="@drawable/roundedprofile"/>
+        android:contentDescription="@string/pictureImgViewDescription"/>
 
     <LinearLayout
         android:orientation="vertical"
@@ -24,28 +21,23 @@ android:padding="5dip" >
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/nameTxtView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:text="OLAAAAAAAAAAAAAA"
             android:textColor="#040404"
             android:typeface="sans"
-            android:textSize="15dip"
+            android:textSize="15sp"
             android:textStyle="bold" />
         <TextView
-            android:id="@+id/status"
+            android:id="@+id/messageTxtView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="AAAAAAAAAAAAAAA"
             android:textColor="#343434"
-            android:textSize="10dip"
+            android:textSize="12sp"
             android:layout_marginTop="1dip"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
     </LinearLayout>
 </LinearLayout>
-
-
-</RelativeLayout>

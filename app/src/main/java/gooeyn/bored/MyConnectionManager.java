@@ -28,7 +28,9 @@ public class MyConnectionManager {
     String host = "54.84.237.97";
     int port = 5225;
     String resource = "Android";
+
     String TAG = "myshit/MyConnectionManager";
+
     private Boolean isBored = false;
     public String status = "Click here to set your status message";
 

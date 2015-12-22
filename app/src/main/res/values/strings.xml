@@ -22,5 +22,7 @@
     <string name="title_activity_handler">HandlerActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="title_activity_handler2">HandlerActivity2</string>
+    <string name="title_activity_handler2">Bored</string>
+
+    <string name="pictureImgViewDescription">User picture</string>
 </resources>

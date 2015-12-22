@@ -11,18 +11,6 @@ import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.icon_menu));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final SectionsPagerAdapter adapter = new SectionsPagerAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount());
+        final SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(adapter);
 
@@ -60,9 +47,8 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(0);
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
+    /*
+    SETS THE RESPECTIVE FRAGMENT ACCORDING TO TAB POSITION
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         int mNumOfTabs;
@@ -87,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return mNumOfTabs;
         }
     }

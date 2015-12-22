@@ -46,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     String TAG = "myshit/LoginActivity";
     String server = "http://ec2-54-84-237-97.compute-1.amazonaws.com/insertdata.php";
     String host = "54.84.237.97";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
