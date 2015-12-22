@@ -3,12 +3,9 @@ package gooeyn.bored;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-
 public class CountdownActivity extends Activity {
 
     public static final long DISCONNECT_TIMEOUT = 3600000; // 60 min = 60 * 60 * 1000 ms
-    private String TAG = "myshit";
     private static Handler disconnectHandler = new Handler(){
         public void handleMessage(Message msg) {
         }

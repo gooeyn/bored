@@ -29,7 +29,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Press in case of boredom"
         android:id="@+id/textPress"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/lowerTab"
         android:layout_centerHorizontal="true" />
 
     <LinearLayout

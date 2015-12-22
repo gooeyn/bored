@@ -1,6 +1,7 @@
 package gooeyn.bored;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,8 @@ import org.jivesoftware.smack.roster.RosterListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,14 +66,6 @@ public class PeopleFragment extends Fragment {
         peopleLV.setAdapter(adapter);
                 /* SET ALL ON CLICK LISTENERS */
 
-        if (MyConnectionManager.getInstance().isBored())
-        {
-            peopleLV.setVisibility(View.VISIBLE);
-            boredButton.setVisibility(View.INVISIBLE);
-            lowerTab.setVisibility(View.VISIBLE);
-            txt.setVisibility(View.INVISIBLE);
-        }
-
         boredButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,8 +95,36 @@ public class PeopleFragment extends Fragment {
                                 String id = from.substring(0, from.indexOf("@"));
 
                                 if (isUnique(people, id)) {
-                                    people.add(new People("", "", id, presence.getStatus()));
-                                    new ConnectAndLoad(presence.getFrom()).execute();
+                                    People p = new People("", "", id, presence.getStatus());
+                                    people.add(p);
+
+                                    //String FILENAME = id + "_profile";
+                                    String filenameUser = id + "_username";
+
+                                    try
+                                    {
+                                        FileInputStream fis2 = getContext().openFileInput(filenameUser);
+                                        StringBuilder builder = new StringBuilder();
+                                        int ch;
+                                        while((ch = fis2.read()) != -1){
+                                            builder.append((char)ch);
+                                        }
+                                        Log.e(TAG, "THE NAME: " + builder.toString());
+                                        p.setName(builder.toString());
+                                        fis2.close();
+
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        new ConnectAndLoad(presence.getFrom()).execute();
+                                        Log.e(TAG, "Error getting the image: " + e.toString());
+                                    }
                                 } else {
                                     for (People d : people) {
                                         if (d.getId().equals(id)) {
@@ -168,8 +191,36 @@ public class PeopleFragment extends Fragment {
                             }
                         } else if (presence.getPriority() == 1) {
                             if (isUnique(people, id)) {
-                                people.add(new People("", "", id, presence.getStatus()));
-                                new ConnectAndLoad(presence.getFrom()).execute();
+                                People p = new People("", "", id, presence.getStatus());
+                                people.add(p);
+
+                                //String FILENAME = id + "_profile";
+                                String filenameUser = id + "_username";
+                                try
+                                {
+                                    FileInputStream fis2 = getContext().openFileInput(filenameUser);
+                                    StringBuilder builder = new StringBuilder();
+                                    int ch;
+                                    while((ch = fis2.read()) != -1){
+                                        builder.append((char)ch);
+                                    }
+                                    Log.e(TAG, "THE NAME: " + builder.toString());
+                                    p.setName(builder.toString());
+                                    fis2.close();
+
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                                catch (Exception e)
+                                {
+                                    new ConnectAndLoad(presence.getFrom()).execute();
+                                    Log.e(TAG, "Error getting the image: " + e.toString());
+                                }
+
                             } else {
                                 for (People d : people) {
                                     if (d.getId().equals(id)) {
@@ -211,6 +262,14 @@ public class PeopleFragment extends Fragment {
                 txt.setVisibility(View.VISIBLE);
             }
         });
+
+
+
+        if (MyConnectionManager.getInstance().isBored())
+        {
+            boredButton.callOnClick();
+        }
+
         return view;
     }
     public Boolean isUnique(ArrayList<People> people, String user)
@@ -311,6 +370,14 @@ public class PeopleFragment extends Fragment {
                 {
                     d.setName(username);
                     d.setProfile(profile);
+
+                    //String FILENAME = id + "_profile";
+                    String filenameUser = id + "_username";
+
+                    FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
+                    fos2.write(username.getBytes());
+                    fos2.close();
+
                 }
             }
 

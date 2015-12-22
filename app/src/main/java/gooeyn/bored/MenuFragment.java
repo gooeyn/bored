@@ -5,8 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,6 +23,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +48,8 @@ public class MenuFragment extends Fragment {
         profileTxtView = (TextView) view.findViewById(R.id.profileTxtView);
         profileImgView = (ImageView) view.findViewById(R.id.profileImgView);
         statusTxtView = (TextView) view.findViewById(R.id.statusTextView);
+
+        statusTxtView.setText(MyConnectionManager.getInstance().status);
         Button logoutButton = (Button) view.findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,30 +135,42 @@ public class MenuFragment extends Fragment {
                     {
                         try
                         {
-                            Log.e(TAG, "cCOMPLETED FACEBOOK");
+                            Log.e(TAG, "COMPLETED FACEBOOK");
                             String URL = object.getJSONObject("picture").getJSONObject("data").getString("url");
-                            Picasso.with(context).load(URL).transform(new CircleTransform()).into(profileImgView);
+
+                            final String string = object.getString("name");
+
+                            Target target = new Target()
+                            {
+                                @Override
+                                public void onPrepareLoad(Drawable arg0) {
+                                }
+                                @Override
+                                public void onBitmapFailed(Drawable arg0) {
+                                }
+                                @Override
+                                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
+                                    profileImgView.setImageBitmap(bitmap);
+                                    File file = new File(context.getFilesDir(), FILENAME);
+                                    try
+                                    {
+                                        FileOutputStream fos = getContext().openFileOutput(file.getName(), Context.MODE_PRIVATE);
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                                        fos.flush();
+                                        fos.close();
+
+                                        FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
+                                        fos2.write(string.getBytes());
+                                        fos2.close();
+                                        Log.e(TAG, "Profile image stored");
+                                    } catch (Exception e)
+                                    {
+                                        Log.e(TAG, "Error storing the image: " + e.toString());
+                                    }
+                                }
+                            };
+                            Picasso.with(context).load(URL).transform(new CircleTransform()).into(target);
                             profileTxtView.setText(object.getString("name"));
-                            String string = object.getString("name");
-                            File file = new File(context.getFilesDir(), FILENAME);
-                            try
-                            {
-                                BitmapDrawable btmpDr = (BitmapDrawable) profileImgView.getDrawable();
-                                Bitmap bmp = btmpDr.getBitmap();
-
-                                FileOutputStream fos = getContext().openFileOutput(file.getName(), Context.MODE_PRIVATE);
-                                bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                                fos.flush();
-                                fos.close();
-
-                                FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
-                                fos2.write(string.getBytes());
-                                fos2.close();
-
-                            } catch (Exception e)
-                            {
-                                Log.e(TAG, "Error storing the image: " + e.toString());
-                            }
                         }
                         catch (JSONException e)
                         {

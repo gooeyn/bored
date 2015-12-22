@@ -30,6 +30,7 @@ public class MyConnectionManager {
     String resource = "Android";
     String TAG = "myshit/MyConnectionManager";
     private Boolean isBored = false;
+    public String status = "Click here to set your status message";
 
     private static MyConnectionManager instance = null;
 
@@ -142,7 +143,7 @@ public class MyConnectionManager {
         isBored = true;
         try
         {
-            Presence p = new Presence(Presence.Type.available, "", 1, Presence.Mode.available);
+            Presence p = new Presence(Presence.Type.available, status, 1, Presence.Mode.available);
             connection.sendStanza(p);
         }
         catch(Exception e)
@@ -157,6 +158,7 @@ public class MyConnectionManager {
         isBored = false;
         try
         {
+            status = "Click here to set your status message";
             Presence p = new Presence(Presence.Type.available, "", 0, Presence.Mode.available);
             connection.sendStanza(p);
         }
@@ -235,6 +237,7 @@ public class MyConnectionManager {
         try
         {
             Presence p = new Presence(Presence.Type.available, status, 1, Presence.Mode.available);
+            this.status = status;
             connection.sendStanza(p);
         }
         catch(Exception e)
