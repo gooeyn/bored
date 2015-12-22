@@ -4,6 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -25,12 +28,18 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 public class MenuFragment extends Fragment {
     TextView profileTxtView;
     TextView statusTxtView;
     ImageView profileImgView;
     Context context;
     String TAG = "myshit";
+    String FILENAME = "profilepic9";
+    String filenameUser = "usernameprofile";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e("myshit", "ONCREATE MENU FRAGMENT");
@@ -55,8 +64,8 @@ public class MenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-                alertDialog.setTitle("What do you want to do?");
-                alertDialog.setMessage("Hey, tell your friends what you want to do: ");
+                alertDialog.setTitle("Click here to set your status message");
+                alertDialog.setMessage("By setting a message you automatically get BORED");
                 final EditText input = new EditText(getActivity());
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -71,11 +80,43 @@ public class MenuFragment extends Fragment {
                                 statusTxtView.setText(input.getText().toString());
                             }
                         });
+                alertDialog.setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
 
                 alertDialog.show();
             }
         });
-        getFacebookData();
+
+        File file = new File(context.getFilesDir(), FILENAME);
+        try
+        {
+            FileInputStream fis = getContext().openFileInput(file.getName());
+            fis.close();
+
+            Log.e(TAG, "READ THE IMAGE SUCESSFULLY");
+            Log.e(TAG, file.getName());
+            Log.e(TAG, file.getPath());
+            Picasso.with(context).load(file).transform(new CircleTransform()).into(profileImgView);
+
+            FileInputStream fis2 = getContext().openFileInput(filenameUser);
+            StringBuilder builder = new StringBuilder();
+            int ch;
+            while((ch = fis2.read()) != -1){
+                builder.append((char)ch);
+            }
+            Log.e(TAG, builder.toString());
+            profileTxtView.setText(builder.toString());
+            fis2.close();
+        } catch (Exception e)
+        {
+            getFacebookData();
+            Log.e(TAG, "Error getting the image: " + e.toString());
+        }
         return view;
     }
 
@@ -92,9 +133,30 @@ public class MenuFragment extends Fragment {
                     {
                         try
                         {
+                            Log.e(TAG, "cCOMPLETED FACEBOOK");
                             String URL = object.getJSONObject("picture").getJSONObject("data").getString("url");
                             Picasso.with(context).load(URL).transform(new CircleTransform()).into(profileImgView);
                             profileTxtView.setText(object.getString("name"));
+                            String string = object.getString("name");
+                            File file = new File(context.getFilesDir(), FILENAME);
+                            try
+                            {
+                                BitmapDrawable btmpDr = (BitmapDrawable) profileImgView.getDrawable();
+                                Bitmap bmp = btmpDr.getBitmap();
+
+                                FileOutputStream fos = getContext().openFileOutput(file.getName(), Context.MODE_PRIVATE);
+                                bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                                fos.flush();
+                                fos.close();
+
+                                FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
+                                fos2.write(string.getBytes());
+                                fos2.close();
+
+                            } catch (Exception e)
+                            {
+                                Log.e(TAG, "Error storing the image: " + e.toString());
+                            }
                         }
                         catch (JSONException e)
                         {
