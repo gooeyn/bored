@@ -46,8 +46,9 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
         TextView messageTxtView = (TextView) convertView.findViewById(R.id.messageTxtView);
 
         //SETTINGS THE USER INFORMATION
-        nameTxtView.setText(chat.getMessage());
-        messageTxtView.setText(chat.getName());
+        nameTxtView.setText(chat.getName());
+        messageTxtView.setText(chat.getMessage());
+        Log.e(TAG, "setUserPicturebefore");
         setUserPicture(chat);
 
         //ON CLICK LISTENER FOR THE USER, OPENS CONVERSATION ACTIVITY
@@ -69,6 +70,7 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
 
     public void setUserPicture(MyChat chat)
     {
+        Log.e(TAG, "setUserPictureafter");
         String filePicture = chat.getId() + "_picture";
         final File file = new File(context.getFilesDir(), filePicture);
 

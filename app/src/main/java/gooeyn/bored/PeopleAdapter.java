@@ -45,7 +45,7 @@ public class PeopleAdapter extends ArrayAdapter<People> {
         tvStatus.setText(user.status);
         tvName.setText(user.name);
 
-        String FILENAME = user.getId() + "_profile";
+        String FILENAME = user.getId() + "_picture";
         final File file = new File(context.getFilesDir(), FILENAME);
 
 
