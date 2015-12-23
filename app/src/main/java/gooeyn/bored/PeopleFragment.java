@@ -48,7 +48,8 @@ public class PeopleFragment extends Fragment {
 
     /*
     I NEED TO FIX THE FOLLOWING EXCEPTION
-        java.util.ConcurrentModificationException
+        - java.util.ConcurrentModificationException
+        - Error getting the image
      */
 
     @Override

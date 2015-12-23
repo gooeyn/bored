@@ -13,7 +13,7 @@ android:padding="5dip" >
     android:layout_marginRight="5dip">
 
     <ImageView
-        android:id="@+id/profileImgView"
+        android:id="@+id/pictureImgView"
         android:layout_width="50dip"
         android:layout_height="50dip"/>
 
@@ -28,18 +28,16 @@ android:padding="5dip" >
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:text="OLAAAAAAAAAAAAAA"
             android:textColor="#040404"
             android:typeface="sans"
-            android:textSize="15dip"
+            android:textSize="16sp"
             android:textStyle="bold" />
         <TextView
             android:id="@+id/status"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="AAAAAAAAAAAAAAA"
             android:textColor="#343434"
-            android:textSize="10dip"
+            android:textSize="12sp"
             android:layout_marginTop="1dip"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
