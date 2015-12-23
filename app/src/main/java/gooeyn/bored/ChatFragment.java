@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 public class ChatFragment extends Fragment {
 
-    ArrayList<MyChat> people = new ArrayList<>();
+    ArrayList<MyChat> chats = new ArrayList<>();
     ChatAdapter adapter;
     String TAG = "myshit";
     Activity activity;
@@ -31,12 +31,11 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        //ASSIGN VARIABLES
-        final ListView chatLV = (ListView) view.findViewById(R.id.chatLV);
-
+        //DECLARING AND ASSIGNING VARIABLES
+        final ListView chatListView = (ListView) view.findViewById(R.id.chatLV);
         activity = getActivity();
-        adapter = new ChatAdapter(getContext(), people);
-        chatLV.setAdapter(adapter);
+        adapter = new ChatAdapter(getContext(), chats);
+        chatListView.setAdapter(adapter);
 
         //GET CHAT MANAGER FROM CONNECTION AND ADD LISTENER
         ChatManager chatManager = ChatManager.getInstanceFor(MyConnectionManager.getInstance().getConnection());
@@ -52,7 +51,7 @@ public class ChatFragment extends Fragment {
                     {
                         if (message.getBody() != null) //IF MESSAGE BODY IS NOT NULL
                         {
-                            //ASSIGN VARIABLES
+                            //DECLARING AND ASSIGNING VARIABLES
                             String from = message.getFrom();
                             String id = from.substring(0, from.indexOf("@"));
                             String newMessage = message.getBody();
@@ -61,36 +60,21 @@ public class ChatFragment extends Fragment {
                             boolean isNewChat = true;
 
                             // RUNS TROUGH ALL THE CHATS
-                            for (MyChat person : people)
+                            for (MyChat currentChat : chats)
                             {
-                                if(person.getId().equals(id)) //IF FIND A CHAT WITH THE SAME ID AS THE NEW MESSAGE
+                                if(currentChat.getId().equals(id)) //IF FIND A CHAT WITH THE SAME ID AS THE NEW MESSAGE
                                 {
                                     isNewChat = false; //IT'S NOT A NEW CHAT
-                                    try
-                                    {
-                                        person.setMessage(newMessage); //SET MESSAGE TO PERSON'S
-                                        updateMessages(newMessage, fileMessages); //UPDATE MESSAGES
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Log.e(TAG, "EXCEPTION: " + e.toString());
-                                    }
+                                    currentChat.setMessage(newMessage); //SET MESSAGE TO CHAT
+                                    updateMessages(newMessage, fileMessages); //UPDATE MESSAGES
                                 }
                             }
 
-                            if(isNewChat) //IF IS A NEW CHAT
-                            {
-                                createNewChat(newMessage, fileMessages, fileUser, id); //CREATE A NEW CHAT
-                            }
+                            if(isNewChat) //IF IS A NEW CHAT CREATE NEW CHAT
+                                createNewChat(newMessage, fileMessages, fileUser, id);
 
-                            //UPDATE DATA SET ON UI THREAD
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run()
-                                {
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
+
+                            notifyDataSetChanged(); //UPDATE DATA SET ON UI THREAD
                         }
                     }
                 });
@@ -99,65 +83,66 @@ public class ChatFragment extends Fragment {
         return view;
     }
 
+    //UPDATES THE CHAT MESSAGES
     public void updateMessages(String newMessage, String fileMessages)
     {
-        //GET CURRENT MESSAGES
-        String oldMessages = "";
+        String messages = readFile(fileMessages) + newMessage; //CREATE STRING WITH OLD MESSAGES + NEW MESSAGE
+        createFile(fileMessages, messages); //UPDATES FILE WITH OLD + CURRENT MESSAGES
+    }
+
+    //CREATES A NEW CHAT, SETTING THE CHAT NAME AND CREATING A STORAGE FILE
+    public void createNewChat(String newMessage, String fileMessages, String fileUser, String id)
+    {
+        MyChat newChat = new MyChat("", "", id, newMessage);
+        newChat.setName(readFile(fileUser)); //READ FILE USER AND SET IT TO NEW CHAT
+        createFile(fileMessages, newMessage); //CREATE NEW FILE MESSAGES CONTAINING THE NEW MESSAGE
+        chats.add(newChat);
+    }
+
+    //READ FILE FILENAME AND RETURNS IT AS A STRING
+    public String readFile(String filename)
+    {
+        StringBuilder builder = new StringBuilder();
         try
         {
-            FileInputStream fis2 = getContext().openFileInput(fileMessages);
-            StringBuilder builder = new StringBuilder();
+            FileInputStream fileInputStream = getContext().openFileInput(filename);
             int ch;
-            while((ch = fis2.read()) != -1){
+            while((ch = fileInputStream.read()) != -1){
                 builder.append((char)ch);
             }
-            oldMessages = builder.toString();
-            fis2.close();
-
-            oldMessages += newMessage;
+            fileInputStream.close();
         }
         catch (Exception e)
         {
-            Log.e(TAG, "EXCEPTION GETTING OLD MESSAGES: " + e.toString());
+            Log.e(TAG, "CAN'T LOAD FILE: " + e.toString());
         }
+        return builder.toString();
+    }
 
-        //ADD NEW MESSAGE TO CURRENT MESSAGES
+    //CREATE A NEW FILE FILENAME WITH THE THE GIVE CONTENT
+    public void createFile(String filename, String content)
+    {
         try
         {
-            FileOutputStream fos2 = getContext().openFileOutput(fileMessages, Context.MODE_PRIVATE);
-            fos2.write(oldMessages.getBytes());
+            FileOutputStream fos2 = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos2.write(content.getBytes());
             fos2.close();
         }
         catch (Exception e)
         {
-            Log.e(TAG, "EXCEPTION ADDING NEW MESSAGE TO OLD MESSAGES (NEW CHAT): " + e.toString());
+            Log.e(TAG, "CAN'T CREATE FILE: " + e.toString());
         }
     }
 
-    public void createNewChat(String newMessage, String fileMessages, String fileUser, String id)
+    //NOTIFY DATA SET CHANGED ON UI THREAD
+    public void notifyDataSetChanged()
     {
-        StringBuilder builder = new StringBuilder();
-        MyChat newChat = new MyChat("", "", id, newMessage);
-        try
-        {
-            //GET USER NAME
-            FileInputStream fis2 = getContext().openFileInput(fileUser);
-            int ch;
-            while((ch = fis2.read()) != -1){
-                builder.append((char)ch);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                adapter.notifyDataSetChanged();
             }
-            fis2.close();
-
-            //CREATE NEW FILE MESSAGES
-            FileOutputStream fos2 = getContext().openFileOutput(fileMessages, Context.MODE_PRIVATE);
-            fos2.write(newMessage.getBytes());
-            fos2.close();
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, "EXCEPTIO WRITING (NEW CHAT): " + e.toString());
-        }
-        newChat.setName(builder.toString());
-        people.add(newChat);
+        });
     }
 }

@@ -24,6 +24,7 @@ public class PeopleAdapter extends ArrayAdapter<People> {
     private ArrayList<People> events_list = new ArrayList<>();
     Context context;
     String TAG = "myshit";
+    ImageView pictureImgView;
 
     public PeopleAdapter(Context context, ArrayList<People> users) {
         super(context, 0, users);
@@ -38,78 +39,86 @@ public class PeopleAdapter extends ArrayAdapter<People> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_user, parent, false);
         }
-        final ImageView profileImgView = (ImageView) convertView.findViewById(R.id.profileImgView);
+
+        //DECLARING AND ASSIGNINGVARIABLES
+        pictureImgView = (ImageView) convertView.findViewById(R.id.pictureImgView);
         TextView tvName = (TextView) convertView.findViewById(R.id.name);
         TextView tvStatus = (TextView) convertView.findViewById(R.id.status);
 
-        tvStatus.setText(user.status);
-        tvName.setText(user.name);
+        //SETING VALUES TO VARIABLES
+        tvStatus.setText(user.getStatus());
+        tvName.setText(user.getName());
+        setUserPicture(user);
 
-        String FILENAME = user.getId() + "_picture";
-        final File file = new File(context.getFilesDir(), FILENAME);
-
-
-        if(file.exists())
-        {
-            try
-            {
-                Log.e(TAG, "READ THE IMAGE SUCESSFULLY");
-                Picasso.with(context).load(file).transform(new CircleTransform()).into(profileImgView);
-            }
-            catch (Exception e)
-            {
-                Log.e(TAG, "Error getting the image: " + e.toString());
-            }
-        }
-        else
-        {
-            if(user.profile != null)
-                if(!user.profile.equals(""))
-                {
-                    Target target = new Target()
-                    {
-                        @Override
-                        public void onPrepareLoad(Drawable arg0) {
-                        }
-                        @Override
-                        public void onBitmapFailed(Drawable arg0) {
-                        }
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
-                            profileImgView.setImageBitmap(bitmap);
-                            try
-                            {
-                                FileOutputStream fos = getContext().openFileOutput(file.getName(), Context.MODE_PRIVATE);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                                fos.flush();
-                                fos.close();
-
-                                Log.e(TAG, "Image stored");
-
-                            } catch (Exception e)
-                            {
-                                Log.e(TAG, "Error storing the image: " + e.toString());
-                            }
-                        }
-                    };
-
-                    Picasso.with(context).load(user.profile).transform(new CircleTransform()).into(target);
-                }
-        }
-
-
-
+        //ON CLICK LISTENER FOR THE USER, OPENS CONVERSATION ACTIVITY
         convertView.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "You Clicked " + events_list.get(position).getName(), Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(context, ConversationActivity.class);
-                i.putExtra("user", events_list.get(position).name);
+                i.putExtra("user", events_list.get(position).getName());
                 context.startActivity(i);
             }
         });
 
         return convertView;
+    }
+
+    //SET USER PICTURE TO USER IMAGE VIEW
+    public void setUserPicture(People user)
+    {
+        String filePicture = user.getId() + "_profile"; //FILE PICTURE NAME. EX: 12423487398_profile
+        final File file = new File(context.getFilesDir(), filePicture); //CREATES/GETS FILE USING FILENAME
+
+        if(file.exists()) //IF THE FILE EXISTS LOAD IT TO IMAGE VIEW USING PICASSO
+        {
+            try
+            {
+                Log.v(TAG, "Image loaded successfully: " + file.getName());
+                Picasso.with(context).load(file).transform(new CircleTransform()).into(pictureImgView);
+            }
+            catch (Exception e)
+            {
+                Log.e(TAG, "Error loading the image: " + e.toString());
+            }
+        }
+        else //IF THE FILE DOES NOT EXIST, LOAD PICTURE URL
+        {
+            loadPicture(user, file);
+        }
+    }
+
+    //LOAD PICTURE FROM URL
+    public void loadPicture(final People user, final File file)
+    {
+        if (user.getPicture() != null) //IF LINK IS NOT NULL
+        {
+            if (!user.getPicture().equals("")) //IF LINK IS NOT EMPTY
+            {
+                Target target = new Target() //CREATES A NEW TARGET OBJECT TO BE USED BY PICASSO
+                {
+                    @Override
+                    public void onPrepareLoad(Drawable arg0) {}
+                    @Override
+                    public void onBitmapFailed(Drawable arg0) {}
+                    @Override //SET IMAGE BITMAP TO IMAGE VIEW AND STORE IMAGE ON INTERNAL MEMORY
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
+                        pictureImgView.setImageBitmap(bitmap); //SET IMAGE TO IMAGE VIEW
+                        try { //STORE IMAGE TO FILE
+                            FileOutputStream fos = context.openFileOutput(file.getName(), Context.MODE_PRIVATE);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                            fos.flush();
+                            fos.close();
+                            Log.v(TAG, "Image stored successfully: " + file.getName());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error storing the image: " + e.toString());
+                        }
+                    }
+                };
+                //LOAD IMAGE URL USING PICASSO
+                Picasso.with(context).load(user.getPicture()).transform(new CircleTransform()).into(target);
+            }
+        }
     }
 }

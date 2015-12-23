@@ -40,15 +40,14 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
             convertView = LayoutInflater.from(context).inflate(R.layout.list_item_chat, parent, false);
         }
 
-        // ASSIGNING VARIABLES
+        //DECLARING AND ASSIGNING VARIABLES
         pictureImgView = (ImageView) convertView.findViewById(R.id.pictureImgView);
         TextView nameTxtView = (TextView) convertView.findViewById(R.id.nameTxtView);
         TextView messageTxtView = (TextView) convertView.findViewById(R.id.messageTxtView);
 
-        //SETTINGS THE USER INFORMATION
+        //SETTINGS THE USER INFORMATION TO LIST ITEM
         nameTxtView.setText(chat.getName());
         messageTxtView.setText(chat.getMessage());
-        Log.e(TAG, "setUserPicturebefore");
         setUserPicture(chat);
 
         //ON CLICK LISTENER FOR THE USER, OPENS CONVERSATION ACTIVITY
@@ -63,18 +62,16 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
                 context.startActivity(i); //START CONVERSATION ACTIVITY
             }
         });
-
         return convertView; //RETURN THE VIEW
     }
 
-
+    //SET USER PICTURE TO USER IMAGE VIEW
     public void setUserPicture(MyChat chat)
     {
-        Log.e(TAG, "setUserPictureafter");
-        String filePicture = chat.getId() + "_picture";
-        final File file = new File(context.getFilesDir(), filePicture);
+        String filePicture = chat.getId() + "_profile"; //FILE PICTURE NAME. EX: 12423487398_profile
+        final File file = new File(context.getFilesDir(), filePicture); //CREATES/GETS FILE USING FILENAME
 
-        if(file.exists())
+        if(file.exists()) //IF THE FILE EXISTS LOAD IT TO IMAGE VIEW USING PICASSO
         {
             try
             {
@@ -86,44 +83,40 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
                 Log.e(TAG, "Error loading the image: " + e.toString());
             }
         }
-        else
+        else //IF THE FILE DOES NOT EXIST, LOAD PICTURE URL
         {
             loadPicture(chat, file);
         }
     }
 
+    //LOAD PICTURE FROM URL
     public void loadPicture(final MyChat chat, final File file)
     {
-        if (chat.getPicture() != null)
+        if (chat.getPicture() != null) //IF LINK IS NOT NULL
         {
-            if (!chat.getPicture().equals(""))
+            if (!chat.getPicture().equals("")) //IF LINK IS NOT EMPTY
             {
-                Target target = new Target()
+                Target target = new Target() //CREATES A NEW TARGET OBJECT TO BE USED BY PICASSO
                 {
                     @Override
-                    public void onPrepareLoad(Drawable arg0) {
-                    }
-
+                    public void onPrepareLoad(Drawable arg0) {}
                     @Override
-                    public void onBitmapFailed(Drawable arg0) {
-                    }
-
-                    @Override //SET IMAGE BITMAP TO IMAGEVIEW AND STORE IMAGE ON INTERNAL MEMORY
+                    public void onBitmapFailed(Drawable arg0) {}
+                    @Override //SET IMAGE BITMAP TO IMAGE VIEW AND STORE IMAGE ON INTERNAL MEMORY
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
-                        pictureImgView.setImageBitmap(bitmap);
-                        try {
+                        pictureImgView.setImageBitmap(bitmap); //SET IMAGE TO IMAGE VIEW
+                        try { //STORE IMAGE TO FILE
                             FileOutputStream fos = context.openFileOutput(file.getName(), Context.MODE_PRIVATE);
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                             fos.flush();
                             fos.close();
-
                             Log.v(TAG, "Image stored successfully: " + file.getName());
-
                         } catch (Exception e) {
                             Log.e(TAG, "Error storing the image: " + e.toString());
                         }
                     }
                 };
+                //LOAD IMAGE URL USING PICASSO
                 Picasso.with(context).load(chat.getPicture()).transform(new CircleTransform()).into(target);
             }
         }

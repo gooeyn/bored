@@ -332,11 +332,11 @@ public class PeopleFragment extends Fragment {
             String profile = abc.substring(abc.indexOf("@") + 1, abc.length());
             String id = hashData.get("facebook_id");
 
-            for (People d : people) {
-                if (d.getId().equals(id))
+            for (People user : people) {
+                if (user.getId().equals(id))
                 {
-                    d.setName(username);
-                    d.setProfile(profile);
+                    user.setName(username);
+                    user.setPicture(profile);
 
                     String filenameUser = id + "_username";
                     FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);

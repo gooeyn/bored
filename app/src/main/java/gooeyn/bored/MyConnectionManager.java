@@ -23,19 +23,21 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 public class MyConnectionManager {
+    //CONNECTION INFORMATION
     AbstractXMPPConnection connection;
     String serviceName = "54.84.237.97";
     String host = "54.84.237.97";
     int port = 5225;
     String resource = "Android";
 
-    String TAG = "myshit/MyConnectionManager";
+    String TAG = "myshit/MyConnectionManager"; //TAG
 
+    //CONNECTION PREFERENCES
     private Boolean isBored = false;
     public String status = "Click here to set your status message";
 
+    //SINGLETON CONFIGURATION
     private static MyConnectionManager instance = null;
-
     private MyConnectionManager(){}
 
     public static MyConnectionManager getInstance()
@@ -52,6 +54,7 @@ public class MyConnectionManager {
         return connection;
     }
 
+    //GENERATES A KEYSTORE FROM RES/RAW
     public KeyStore generateKeyStore(Context context)
     {
         Log.v(TAG, "Generating key store..");
@@ -71,6 +74,7 @@ public class MyConnectionManager {
         return ks;
     }
 
+    //CREATES A TRUST MANAGER BASED ON THE KEYSTORE
     public TrustManagerFactory generateTrustManagerFactory(KeyStore ks)
     {
         Log.v(TAG, "Generating trust manager factory..");
@@ -89,6 +93,7 @@ public class MyConnectionManager {
         return tmf;
     }
 
+    //CREATES A SSL CONTEXT BASED ON THE TRUST MANAGER
     public SSLContext generateSSLContext(TrustManagerFactory tmf)
     {
         Log.v(TAG, "Generating SSL context..");
@@ -107,6 +112,7 @@ public class MyConnectionManager {
         return ssl;
     }
 
+    //CONNECT TO XMPP SERVER
     public void connect()
     {
         Log.v(TAG, "Attempting to connect..");
@@ -123,6 +129,7 @@ public class MyConnectionManager {
         }
     }
 
+    //LOGIN TO XMPP SERVER
     public void login()
     {
         Log.v(TAG, "Attempting to login..");
@@ -139,13 +146,14 @@ public class MyConnectionManager {
         }
     }
 
+    //SET USER STATUS TO BORED
     public void bored()
     {
         Log.v(TAG, "Setting status to BORED..");
         isBored = true;
         try
         {
-            Presence p = new Presence(Presence.Type.available, status, 1, Presence.Mode.available);
+            Presence p = new Presence(Presence.Type.available, "", 1, Presence.Mode.available);
             connection.sendStanza(p);
         }
         catch(Exception e)
@@ -154,6 +162,7 @@ public class MyConnectionManager {
         }
     }
 
+    //SET USER STATUS TO NOT BORED
     public void notBored()
     {
         Log.v(TAG, "Setting status to NOT BORED..");
@@ -170,6 +179,7 @@ public class MyConnectionManager {
         }
     }
 
+    //SETTING CONNECTION CONFIGURATION
     public void setConnectionConfiguration(Context context)
     {
         Log.v(TAG, "Setting connection configuration..");
@@ -193,6 +203,7 @@ public class MyConnectionManager {
         SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
     }
 
+    //CREATE A NEW USER ACCOUNT
     public boolean createAccount(String user, String pass)
     {
         Log.v(TAG, "Creating account..");
@@ -211,6 +222,7 @@ public class MyConnectionManager {
         }
     }
 
+    //ADD A NEW FRIEND TO ROSTER
     public void addFriend(String user, String nickname)
     {
         Log.v(TAG, "Adding friend..");
@@ -227,11 +239,14 @@ public class MyConnectionManager {
             Log.e(TAG, "Error adding friend: " + e.toString());
         }
     }
+
+    //RETURN IF USER STATUS IS BORED
     public boolean isBored()
     {
         return isBored;
     }
 
+    //SET USER STATUS AND AUTOMATICALLY SET TO BORED
     public void setStatus(String status)
     {
         Log.v(TAG, "Setting status..");

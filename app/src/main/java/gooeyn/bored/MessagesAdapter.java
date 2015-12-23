@@ -12,18 +12,18 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class MessagesAdapter extends ArrayAdapter<MyMessage> {
-    private ArrayList<MyMessage> events_list = new ArrayList<>();
+    private ArrayList<MyMessage> messages = new ArrayList<>();
     Context context;
 
-    public MessagesAdapter(Context context, ArrayList<MyMessage> users) {
-        super(context, 0, users);
+    public MessagesAdapter(Context context, ArrayList<MyMessage> messages) {
+        super(context, 0, messages);
         this.context = context;
-        this.events_list = users;
+        this.messages = messages;
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        MyMessage message = getItem(position);
+        final MyMessage message = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_message, parent, false);
@@ -35,9 +35,9 @@ public class MessagesAdapter extends ArrayAdapter<MyMessage> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "You Clicked " + events_list.get(position).name, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "You Clicked " + messages.get(position).name, Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(context, ConversationActivity.class);
-                i.putExtra("user", events_list.get(position).name);
+                i.putExtra("user", messages.get(position).name);
                 context.startActivity(i);
             }
         });

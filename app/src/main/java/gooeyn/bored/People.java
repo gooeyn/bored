@@ -2,35 +2,49 @@ package gooeyn.bored;
 
 public class People {
 
-    String name;
-    String profile;
-    String id;
-    String status;
+    private String name;
+    private String picture;
+    private String id;
+    private String status;
 
-    public People(String name, String profile, String id, String status)
+    public People(String name, String picture, String id, String status)
     {
         this.name = name;
-        this.profile = profile;
+        this.picture = picture;
         this.id = id;
         this.status = status;
     }
 
+    /*
+    GETTERS
+     */
     public String getName()
     {
-        return name;
+        return this.name;
+    }
+    public String getPicture()
+    {
+        return this.picture;
     }
     public String getId()
     {
-        return id;
+        return this.id;
+    }
+    public String getStatus()
+    {
+        return this.status;
     }
 
-    public void setProfile(String profile)
-    {
-        this.profile = profile;
-    }
+    /*
+    SETTERS
+     */
     public void setName(String name)
     {
         this.name = name;
+    }
+    public void setPicture(String picture)
+    {
+        this.picture = picture;
     }
     public void setId(String id)
     {
@@ -40,5 +54,4 @@ public class People {
     {
         this.status = status;
     }
-
 }

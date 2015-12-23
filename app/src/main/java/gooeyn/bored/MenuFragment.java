@@ -33,6 +33,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 public class MenuFragment extends Fragment {
+
+    //DECLARING VARIABLES
     TextView profileTxtView;
     TextView statusTxtView;
     ImageView profileImgView;
@@ -40,17 +42,20 @@ public class MenuFragment extends Fragment {
     String TAG = "myshit";
     String FILENAME = "profilepic9";
     String filenameUser = "usernameprofile";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("myshit", "ONCREATE MENU FRAGMENT");
         View view = inflater.inflate(R.layout.fragment_menu, container, false);
+
+        //ASSIGNING VALUES TO VARIABLES
         context = getContext();
         profileTxtView = (TextView) view.findViewById(R.id.profileTxtView);
         profileImgView = (ImageView) view.findViewById(R.id.profileImgView);
         statusTxtView = (TextView) view.findViewById(R.id.statusTextView);
-
         statusTxtView.setText(MyConnectionManager.getInstance().status);
         Button logoutButton = (Button) view.findViewById(R.id.logoutButton);
+
+        //SET ON CLICK LISTENERS
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,68 +66,79 @@ public class MenuFragment extends Fragment {
                 getActivity().finish();
             }
         });
-
         statusTxtView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-                alertDialog.setTitle("Click here to set your status message");
-                alertDialog.setMessage("By setting a message you automatically get BORED");
-                final EditText input = new EditText(getActivity());
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-                alertDialog.setView(input);
-
-                alertDialog.setPositiveButton("Done!",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                MyConnectionManager.getInstance().setStatus(input.getText().toString());
-                                statusTxtView.setText(input.getText().toString());
-                            }
-                        });
-                alertDialog.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
-
-                alertDialog.show();
+                createAlertDialog();
             }
         });
 
+        //READS THE FILE TO GET THE USERNAME AND THE PROFILE PICTURE
         File file = new File(context.getFilesDir(), FILENAME);
-        try
+        if(file.exists()) //IF FILE EXISTS LOAD
         {
-            FileInputStream fis = getContext().openFileInput(file.getName());
-            fis.close();
-
-            Log.e(TAG, "READ THE IMAGE SUCESSFULLY");
-            Log.e(TAG, file.getName());
-            Log.e(TAG, file.getPath());
             Picasso.with(context).load(file).transform(new CircleTransform()).into(profileImgView);
-
-            FileInputStream fis2 = getContext().openFileInput(filenameUser);
-            StringBuilder builder = new StringBuilder();
-            int ch;
-            while((ch = fis2.read()) != -1){
-                builder.append((char)ch);
-            }
-            Log.e(TAG, builder.toString());
-            profileTxtView.setText(builder.toString());
-            fis2.close();
-        } catch (Exception e)
+            profileTxtView.setText(readFile(filenameUser));
+        }
+        else //IF THE FILE DOES NOT EXIST, LOADS THE DATA FROM FACEBOOK
         {
             getFacebookData();
-            Log.e(TAG, "Error getting the image: " + e.toString());
         }
         return view;
     }
 
+    //READ FILE FILENAME AND RETURNS A STRING
+    public String readFile(String filename)
+    {
+        StringBuilder builder = new StringBuilder();
+        try
+        {
+            FileInputStream fis2 = getContext().openFileInput(filename);
+            int ch;
+            while((ch = fis2.read()) != -1){
+                builder.append((char)ch);
+            }
+            fis2.close();
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "CAN'T READ FILE: " + e.toString());
+        }
+        return builder.toString();
+    }
 
+    //CREATE THE ALERT DIALOG TO SET A STATUS MESSAGES
+    public void createAlertDialog()
+    {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+        alertDialog.setTitle("Click here to set your status message");
+        alertDialog.setMessage("By setting a message you automatically get BORED");
+        final EditText input = new EditText(getActivity());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        alertDialog.setView(input);
+
+        alertDialog.setPositiveButton("Done!",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MyConnectionManager.getInstance().setStatus(input.getText().toString());
+                        statusTxtView.setText(input.getText().toString());
+                    }
+                });
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+        alertDialog.show();
+    }
+
+    //GET DATA FROM FACEBOOK USING A GRAPH REQUEST
     public void getFacebookData()
     {
         AccessToken accessToken = AccessToken.getCurrentAccessToken(); // get current access token
