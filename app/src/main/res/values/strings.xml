@@ -25,4 +25,6 @@
     <string name="title_activity_handler2">Bored</string>
 
     <string name="pictureImgViewDescription">User picture</string>
+    <string name="title_activity_oie">Oie</string>
+    <string name="title_activity_oie2">Oie2</string>
 </resources>

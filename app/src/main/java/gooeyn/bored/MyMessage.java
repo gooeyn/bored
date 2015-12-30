@@ -5,17 +5,12 @@ import java.util.ArrayList;
 public class MyMessage {
 
     public String name;
-    public ArrayList<String> messages;
+    public boolean isFromMe = false;
 
-    public MyMessage(String name)
+    public MyMessage(String name, boolean isFromMe)
     {
         this.name = name;
-        messages = new ArrayList<>();
-    }
-
-    public void addMessage(String message)
-    {
-        messages.add(message);
+        this.isFromMe = isFromMe;
     }
 
     public String getName()

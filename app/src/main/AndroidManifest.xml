@@ -27,8 +27,14 @@
             android:name=".LoginActivity"
             android:excludeFromRecents="true"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ConversationActivity">
-            android:parentActivityName="MainActivity" >
+        <activity
+            android:name=".ConversationActivity"
+            android:label="@string/title_activity_oie"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="gooeyn.bored.MainActivity" />
         </activity>
         <activity
             android:name=".MainActivity"

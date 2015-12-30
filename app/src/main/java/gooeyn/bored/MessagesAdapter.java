@@ -2,6 +2,7 @@ package gooeyn.bored;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,17 +29,23 @@ public class MessagesAdapter extends ArrayAdapter<MyMessage> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_message, parent, false);
         }
-
         TextView tvName = (TextView) convertView.findViewById(R.id.textMessage);
         tvName.setText(message.name);
+        if(message.isFromMe)
+        {
+            convertView.setBackgroundColor(Color.RED);
+            tvName.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+        }
+        else
+        {
+            convertView.setBackgroundColor(Color.BLUE);
+            tvName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        }
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, "You Clicked " + messages.get(position).name, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(context, ConversationActivity.class);
-                i.putExtra("user", messages.get(position).name);
-                context.startActivity(i);
             }
         });
 

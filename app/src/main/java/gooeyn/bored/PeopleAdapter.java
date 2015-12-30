@@ -58,6 +58,7 @@ public class PeopleAdapter extends ArrayAdapter<People> {
                 Toast.makeText(context, "You Clicked " + events_list.get(position).getName(), Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(context, ConversationActivity.class);
                 i.putExtra("user", events_list.get(position).getName());
+                i.putExtra("id", events_list.get(position).getId());
                 context.startActivity(i);
             }
         });
