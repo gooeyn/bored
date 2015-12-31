@@ -1,7 +1,6 @@
 package gooeyn.bored;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,11 @@ import java.util.ArrayList;
 public class MessagesAdapter extends ArrayAdapter<MyMessage> {
     private ArrayList<MyMessage> messages = new ArrayList<>();
     Context context;
+
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
 
     public MessagesAdapter(Context context, ArrayList<MyMessage> messages) {
         super(context, 0, messages);

@@ -42,7 +42,7 @@ public class PeopleFragment extends Fragment {
 
     ArrayList<People> people = new ArrayList<>();
     PeopleAdapter adapter;
-    String TAG = "myshit";
+    String TAG = "myshit/PeopleFragment";
     HashMap<String, String> hashData = new HashMap<>();
     Activity activity;
 
@@ -51,6 +51,11 @@ public class PeopleFragment extends Fragment {
         - java.util.ConcurrentModificationException
         - Error getting the image
      */
+
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -166,10 +171,9 @@ public class PeopleFragment extends Fragment {
     {
         People p = new People("", "", id, presence.getStatus());
         people.add(p);
-        String filenameUser = id + "_username";
         try
         {
-            FileInputStream fis2 = getContext().openFileInput(filenameUser);
+            FileInputStream fis2 = getContext().openFileInput(nameFile + id);
             StringBuilder builder = new StringBuilder();
             int ch;
             while((ch = fis2.read()) != -1){
@@ -178,13 +182,12 @@ public class PeopleFragment extends Fragment {
             Log.e(TAG, "THE NAME: " + builder.toString());
             p.setName(builder.toString());
             fis2.close();
-
             notifyDataSetChanged();
         }
         catch (Exception e)
         {
             new ConnectAndLoad(presence.getFrom()).execute();
-            Log.e(TAG, "Error getting the image: " + e.toString());
+            Log.e(TAG, "Error getting the name: " + e.toString());
         }
     }
     public void updatePeople(String id, Presence presence)
@@ -225,11 +228,9 @@ public class PeopleFragment extends Fragment {
                     {
                         People p = new People("", "", id, presence.getStatus());
                         people.add(p);
-                        String filenameUser = id + "_username";
-
                         try
                         {
-                            FileInputStream fis2 = getContext().openFileInput(filenameUser);
+                            FileInputStream fis2 = getContext().openFileInput(nameFile + id);
                             StringBuilder builder = new StringBuilder();
                             int ch;
                             while((ch = fis2.read()) != -1){
@@ -237,13 +238,12 @@ public class PeopleFragment extends Fragment {
                             }
                             p.setName(builder.toString());
                             fis2.close();
-
                             notifyDataSetChanged();
                         }
                         catch (Exception e)
                         {
                             new ConnectAndLoad(presence.getFrom()).execute();
-                            Log.e(TAG, "Error getting the image: " + e.toString());
+                            Log.e(TAG, "Error getting the name: " + e.toString());
                         }
                     }
                     else
@@ -280,7 +280,7 @@ public class PeopleFragment extends Fragment {
             }
             catch (Exception e) //catches IO exception
             {
-                Log.e(TAG, e.toString());
+                Log.e(TAG, "Exception inserting: " + e.toString());
             }
             return true;
         }
@@ -318,7 +318,7 @@ public class PeopleFragment extends Fragment {
             Log.e(TAG, "The response is: " + response);
             is = conn.getInputStream(); //get input stream
             InputStream is2 = new BufferedInputStream(conn.getInputStream());
-            Log.e(TAG, is2.toString());
+            Log.e(TAG, "is2 to string: " + is2.toString());
 
 
             BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -339,8 +339,7 @@ public class PeopleFragment extends Fragment {
                     user.setName(username);
                     user.setPicture(profile);
 
-                    String filenameUser = id + "_username";
-                    FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
+                    FileOutputStream fos2 = getContext().openFileOutput(nameFile + id, Context.MODE_PRIVATE);
                     fos2.write(username.getBytes());
                     fos2.close();
                 }

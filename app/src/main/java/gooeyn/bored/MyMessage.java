@@ -1,7 +1,5 @@
 package gooeyn.bored;
 
-import java.util.ArrayList;
-
 public class MyMessage {
 
     public String name;

@@ -25,6 +25,11 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
     String TAG = "myshit";
     ImageView pictureImgView;
 
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
+
     public ChatAdapter(Context context, ArrayList<MyChat> users) {
         super(context, 0, users);
         this.context = context;
@@ -68,8 +73,7 @@ public class ChatAdapter extends ArrayAdapter<MyChat> {
     //SET USER PICTURE TO USER IMAGE VIEW
     public void setUserPicture(MyChat chat)
     {
-        String filePicture = chat.getId() + "_profile"; //FILE PICTURE NAME. EX: 12423487398_profile
-        final File file = new File(context.getFilesDir(), filePicture); //CREATES/GETS FILE USING FILENAME
+        final File file = new File(context.getFilesDir(), pictureFile + chat.getId()); //CREATES/GETS FILE USING FILENAME
 
         if(file.exists()) //IF THE FILE EXISTS LOAD IT TO IMAGE VIEW USING PICASSO
         {

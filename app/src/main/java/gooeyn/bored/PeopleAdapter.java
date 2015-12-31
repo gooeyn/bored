@@ -23,9 +23,13 @@ import java.util.ArrayList;
 public class PeopleAdapter extends ArrayAdapter<People> {
     private ArrayList<People> events_list = new ArrayList<>();
     Context context;
-    String TAG = "myshit";
+    String TAG = "myshit/PeopleAdapter";
     ImageView pictureImgView;
 
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
     public PeopleAdapter(Context context, ArrayList<People> users) {
         super(context, 0, users);
         this.context = context;
@@ -69,9 +73,7 @@ public class PeopleAdapter extends ArrayAdapter<People> {
     //SET USER PICTURE TO USER IMAGE VIEW
     public void setUserPicture(People user)
     {
-        String filePicture = user.getId() + "_profile"; //FILE PICTURE NAME. EX: 12423487398_profile
-        final File file = new File(context.getFilesDir(), filePicture); //CREATES/GETS FILE USING FILENAME
-
+        final File file = new File(context.getFilesDir(), pictureFile + user.getId()); //CREATES/GETS FILE USING FILENAME
         if(file.exists()) //IF THE FILE EXISTS LOAD IT TO IMAGE VIEW USING PICASSO
         {
             try

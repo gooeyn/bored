@@ -27,6 +27,11 @@ public class ChatFragment extends Fragment {
     String TAG = "myshit";
     Activity activity;
 
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
@@ -55,8 +60,6 @@ public class ChatFragment extends Fragment {
                             String from = message.getFrom();
                             String id = from.substring(0, from.indexOf("@"));
                             String newMessage = message.getBody();
-                            String fileMessages = id + "_messages";
-                            String fileUser = id + "_username";
                             boolean isNewChat = true;
 
                             // RUNS TROUGH ALL THE CHATS
@@ -66,12 +69,12 @@ public class ChatFragment extends Fragment {
                                 {
                                     isNewChat = false; //IT'S NOT A NEW CHAT
                                     currentChat.setMessage(newMessage); //SET MESSAGE TO CHAT
-                                    updateMessages(newMessage, fileMessages); //UPDATE MESSAGES
+                                    updateMessages(newMessage, messagesFile + id); //UPDATE MESSAGES
                                 }
                             }
 
                             if(isNewChat) //IF IS A NEW CHAT CREATE NEW CHAT
-                                createNewChat(newMessage, fileMessages, fileUser, id);
+                                createNewChat(newMessage, messagesFile + id, nameFile + id, id);
 
 
                             notifyDataSetChanged(); //UPDATE DATA SET ON UI THREAD

@@ -47,6 +47,11 @@ public class LoginActivity extends AppCompatActivity {
     String server = "http://ec2-54-84-237-97.compute-1.amazonaws.com/insertdata.php";
     String host = "54.84.237.97";
 
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {

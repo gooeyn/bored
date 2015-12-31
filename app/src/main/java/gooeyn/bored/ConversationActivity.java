@@ -1,20 +1,17 @@
 package gooeyn.bored;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.squareup.picasso.Picasso;
@@ -26,7 +23,6 @@ import org.jivesoftware.smack.packet.Message;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class ConversationActivity extends AppCompatActivity {
@@ -34,6 +30,12 @@ public class ConversationActivity extends AppCompatActivity {
     String TAG = "myshit";
     MessagesAdapter adapter;
     Activity activity;
+
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,24 +46,9 @@ public class ConversationActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         final String user = intent.getStringExtra("user");
-        setTitle(user);
         final String id = intent.getStringExtra("id");
-
-
-        String filePicture = id + "_profile"; //FILE PICTURE NAME. EX: 12423487398_profile
-        final File file = new File(getApplicationContext().getFilesDir(), filePicture); //CREATES/GETS FILE USING FILENAME
-
-        Log.e(TAG, "file piciture: " + filePicture);
-        Log.e(TAG, "file: " + file);
-        if(file.exists()) //IF THE FILE EXISTS LOAD IT TO IMAGE VIEW USING PICASSO
-        {
-            Log.e(TAG, "EXISTS");
-            getSupportActionBar().setIcon(Drawable.createFromPath(file.toString()));
-        }
-        else
-        {
-            Log.e(TAG, "DOES NOT EXIST");
-        }
+        setTitle(user);
+        setImage(id);
 
         Button sendButton = (Button) findViewById(R.id.buttonSend);
         ListView listview = (ListView) findViewById(R.id.listMessages);
@@ -69,12 +56,9 @@ public class ConversationActivity extends AppCompatActivity {
 
 
 
-
-        String chatUser = id + "_messages";
         String currentMessages = "";
-
         try {
-            FileInputStream fis2 = getApplicationContext().openFileInput(chatUser);
+            FileInputStream fis2 = getApplicationContext().openFileInput(messagesFile + id);
             StringBuilder builder = new StringBuilder();
             int ch;
             while ((ch = fis2.read()) != -1) {
@@ -88,8 +72,6 @@ public class ConversationActivity extends AppCompatActivity {
         }
 
         myChat.add(new MyMessage(currentMessages, false));
-
-
         activity = ConversationActivity.this;
         adapter = new MessagesAdapter(getApplicationContext(), myChat);
         listview.setAdapter(adapter);
@@ -144,5 +126,29 @@ public class ConversationActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    public void setImage(String id)
+    {
+        pictureFile += id; //FILE PICTURE NAME. EX: 12423487398_profile
+        final File file = new File(getApplicationContext().getFilesDir(), pictureFile); //CREATES/GETS FILE USING FILENAME
+
+        if(file.exists())
+        {
+            Target target = new Target() //CREATES A NEW TARGET OBJECT TO BE USED BY PICASSO
+            {
+                @Override
+                public void onPrepareLoad(Drawable arg0) {}
+                @Override
+                public void onBitmapFailed(Drawable arg0) {}
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
+                    if(getSupportActionBar() != null)
+                        getSupportActionBar().setIcon(new BitmapDrawable(getResources(), bitmap));
+                }
+            };
+            Picasso.with(getApplicationContext()).load(file).transform(new CircleTransform()).into(target);
+        }
+
     }
 }

@@ -40,8 +40,12 @@ public class MenuFragment extends Fragment {
     ImageView profileImgView;
     Context context;
     String TAG = "myshit";
-    String FILENAME = "profilepic9";
-    String filenameUser = "usernameprofile";
+
+    //Files
+    String messagesFile = "messages_";
+    String pictureFile = "picture_";
+    String nameFile = "name_";
+    String id = "me";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,11 +78,11 @@ public class MenuFragment extends Fragment {
         });
 
         //READS THE FILE TO GET THE USERNAME AND THE PROFILE PICTURE
-        File file = new File(context.getFilesDir(), FILENAME);
+        File file = new File(context.getFilesDir(), pictureFile + id);
         if(file.exists()) //IF FILE EXISTS LOAD
         {
             Picasso.with(context).load(file).transform(new CircleTransform()).into(profileImgView);
-            profileTxtView.setText(readFile(filenameUser));
+            profileTxtView.setText(readFile(nameFile + id));
         }
         else //IF THE FILE DOES NOT EXIST, LOADS THE DATA FROM FACEBOOK
         {
@@ -167,7 +171,7 @@ public class MenuFragment extends Fragment {
                                 @Override
                                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom arg1) {
                                     profileImgView.setImageBitmap(bitmap);
-                                    File file = new File(context.getFilesDir(), FILENAME);
+                                    File file = new File(context.getFilesDir(), pictureFile + id);
                                     try
                                     {
                                         FileOutputStream fos = getContext().openFileOutput(file.getName(), Context.MODE_PRIVATE);
@@ -175,7 +179,7 @@ public class MenuFragment extends Fragment {
                                         fos.flush();
                                         fos.close();
 
-                                        FileOutputStream fos2 = getContext().openFileOutput(filenameUser, Context.MODE_PRIVATE);
+                                        FileOutputStream fos2 = getContext().openFileOutput(nameFile + id, Context.MODE_PRIVATE);
                                         fos2.write(string.getBytes());
                                         fos2.close();
                                         Log.e(TAG, "Profile image stored");

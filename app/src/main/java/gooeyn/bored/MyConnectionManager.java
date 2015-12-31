@@ -153,7 +153,7 @@ public class MyConnectionManager {
         isBored = true;
         try
         {
-            Presence p = new Presence(Presence.Type.available, "", 1, Presence.Mode.available);
+            Presence p = new Presence(Presence.Type.available, status, 1, Presence.Mode.available);
             connection.sendStanza(p);
         }
         catch(Exception e)
