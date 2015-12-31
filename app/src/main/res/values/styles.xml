@@ -35,7 +35,7 @@
     </style>
 
 
-    <style name="AppThemeStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppThemeStyle" parent="AppTheme.AppBarOverlay">
         <item name="colorPrimary">#ffffff</item>
         <item name="colorPrimaryDark">#cc0000</item>
         <item name="colorAccent">@color/colorAccent</item>

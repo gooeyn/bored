@@ -55,7 +55,7 @@ public class ConversationActivity extends AppCompatActivity {
         final EditText sendText = (EditText) findViewById(R.id.editTextSend);
 
 
-
+/*
         String currentMessages = "";
         try {
             FileInputStream fis2 = getApplicationContext().openFileInput(messagesFile + id);
@@ -71,7 +71,7 @@ public class ConversationActivity extends AppCompatActivity {
             Log.e(TAG, "EXCEPTION ON GETTING MESSAGES: " + e.toString());
         }
 
-        myChat.add(new MyMessage(currentMessages, false));
+        myChat.add(new MyMessage(currentMessages, false));*/
         activity = ConversationActivity.this;
         adapter = new MessagesAdapter(getApplicationContext(), myChat);
         listview.setAdapter(adapter);

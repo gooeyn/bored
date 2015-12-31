@@ -2,6 +2,7 @@ package gooeyn.bored;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,12 +39,10 @@ public class MessagesAdapter extends ArrayAdapter<MyMessage> {
         if(message.isFromMe)
         {
             convertView.setBackgroundColor(Color.RED);
-            tvName.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
         }
         else
         {
             convertView.setBackgroundColor(Color.BLUE);
-            tvName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         }
 
         convertView.setOnClickListener(new View.OnClickListener() {
